@@ -1,7 +1,7 @@
 import { Entity } from './Entity.js';
 import { Projectile } from './Projectile.js';
 import { moveBody, setHeight } from '../core/physics.js';
-import { PHYSICS, PLAYER } from '../config.js';
+import { PHYSICS, PLAYER, WEAPONS } from '../config.js';
 import { PLAYER_ANIM as A } from '../data/animations.js';
 
 const pick = (list, t, fps) => list[Math.floor(t * fps) % list.length];
@@ -33,8 +33,7 @@ export class Player extends Entity {
     this.inv = PLAYER.startInvincibility;
     this.dead = false;
     this.deadT = 0;
-    this.weapon = 'normal';
-    this.weaponT = 0;
+    this.powers = []; // poderes guardados: [{ kind, ammo }], el primero es el que se usa
     this.jumpHeld = false;
     this.t = 0;
     this.aim = { x: 1, y: 0 };
@@ -49,15 +48,15 @@ export class Player extends Entity {
     this.vy = 0;
     this.dead = false;
     this.inv = PLAYER.respawnInvincibility;
-    this.weapon = 'normal';
-    this.weaponT = 0;
     this.prone = false;
     this.t = 0;
   }
 
-  giveSpread() {
-    this.weapon = 'spread';
-    this.weaponT = PLAYER.spreadSeconds * 60;
+  // Guarda un poder si hay hueco. Devuelve true si lo cogió.
+  addPower(kind) {
+    if (this.powers.length >= PLAYER.powerSlots) return false;
+    this.powers.push({ kind, ammo: WEAPONS[kind].ammo });
+    return true;
   }
 
   update(game) {
@@ -120,25 +119,33 @@ export class Player extends Entity {
 
     this.cd--;
     if (this.firing > 0) this.firing--;
-    if (input.isDown('fire') && this.cd <= 0) this.shoot(game);
-    if (this.weaponT > 0 && --this.weaponT === 0) this.weapon = 'normal';
+    if (this.cd <= 0) {
+      if (input.isDown('power') && this.powers.length) this.usePower(game);
+      else if (input.isDown('fire')) this.shoot(game, 'normal');
+    }
 
     this.t += 1 / 60;
   }
 
-  shoot(game) {
+  usePower(game) {
+    const power = this.powers[0];
+    this.shoot(game, power.kind);
+    if (--power.ammo <= 0) this.powers.shift(); // se gasta y pasa el siguiente
+  }
+
+  shoot(game, weaponKey) {
+    const weapon = WEAPONS[weaponKey];
     const a = this.aim;
     const cy = this.y + (this.prone ? this.h * 0.4 : this.h * 0.36);
     const gx = this.cx + a.x * PLAYER.muzzleOffset;
     const gy = cy + a.y * PLAYER.muzzleOffset;
     const base = Math.atan2(a.y, a.x);
-    const angles = this.weapon === 'spread' ? [-0.3, -0.15, 0, 0.15, 0.3] : [0];
-    for (const o of angles) {
+    for (const o of weapon.angles) {
       game.projectiles.push(
         new Projectile({ x: gx, y: gy, vx: Math.cos(base + o) * 13, vy: Math.sin(base + o) * 13, life: 70, team: 'player' }),
       );
     }
-    this.cd = this.weapon === 'spread' ? PLAYER.fireCooldown.spread : PLAYER.fireCooldown.normal;
+    this.cd = weapon.cooldown;
     this.firing = 6;
   }
 

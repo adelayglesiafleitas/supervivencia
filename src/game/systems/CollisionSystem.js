@@ -34,10 +34,7 @@ export class CollisionSystem {
 
     // recogidas
     for (const k of pickups) {
-      if (!player.dead && overlaps(k, player)) {
-        player.giveSpread();
-        k.taken = true;
-      }
+      if (!player.dead && overlaps(k, player) && player.addPower(k.kind)) k.taken = true;
     }
   }
 }

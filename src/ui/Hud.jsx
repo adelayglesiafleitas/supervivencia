@@ -1,4 +1,5 @@
 export default function Hud({ hud }) {
+  const powers = hud.powers ?? [];
   return (
     <div className="hud">
       <div className="hud-left">
@@ -13,8 +14,8 @@ export default function Hud({ hud }) {
         <div className="hud-powers">
           PODERES
           {[0, 1].map((i) => (
-            <span key={i} className={'slot' + (i === 0 && hud.powers[0] ? ' active' : '')}>
-              {hud.powers[i] ? `${hud.powers[i].kind.toUpperCase()} ${hud.powers[i].ammo}` : '—'}
+            <span key={i} className={'slot' + (i === 0 && powers[0] ? ' active' : '')}>
+              {powers[i] ? `${powers[i].kind.toUpperCase()} ${powers[i].ammo}` : '—'}
             </span>
           ))}
         </div>

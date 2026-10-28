@@ -7,7 +7,7 @@ import { SHOOTER_ANIM as A } from '../../data/animations.js';
 export class Shooter extends Enemy {
   constructor(game) {
     super('shooter');
-    const { side, x } = Enemy.pickSide(game.world);
+    const { side, x } = Enemy.pickSide(game);
     this.x = x;
     this.y = game.level.groundY - this.h;
     this.face = -side;

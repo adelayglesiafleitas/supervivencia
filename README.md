@@ -12,7 +12,9 @@ npm run build    # versión final en /dist
 npm run preview  # probar la versión final
 ```
 
-Controles: A/D mover · W apuntar arriba · S agacharse · K/Espacio saltar · S+salto bajar de plataforma · J/Z disparar · Enter/R empezar o reintentar.
+Controles: A/D mover · W apuntar arriba · S agacharse · K/Espacio saltar · S+salto bajar de plataforma · **clic izquierdo** disparar · **clic derecho** usar el poder guardado · Enter/R empezar o reintentar.
+
+Poderes: los enemigos sueltan objetos que se guardan (hasta 2 a la vez). El clic derecho gasta munición del primero; al acabarse pasa al segundo. Armas y munición en `WEAPONS` (`config.js`).
 
 ## Idea de la arquitectura
 
@@ -77,7 +79,7 @@ src/
 
 **Cambiar controles.** `CONTROLS` en `config.js`. El juego pregunta por acciones (`jump`, `fire`), nunca por teclas.
 
-**Nueva arma.** Añade el tipo en `Player.shoot()` y su cooldown en `config.js`; el objeto recogible está en `entities/Pickup.js`.
+**Nueva arma o poder.** Añádelo a `WEAPONS` en `config.js` (ángulos, cooldown, munición) y haz que algún enemigo suelte un `Pickup` de ese tipo. Los controles del ratón están en `CONTROLS` (`Mouse0` izquierdo, `Mouse2` derecho).
 
 ## Reglas para mantenerlo escalable
 

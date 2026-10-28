@@ -24,8 +24,10 @@ export class Enemy extends Entity {
   }
 
   // Lado por el que entra al escenario (-1 izquierda, 1 derecha) y su X inicial.
-  static pickSide(world) {
-    const side = Math.random() < 0.5 ? -1 : 1;
-    return { side, x: side < 0 ? -40 : world.w + 10 };
+  // Lo decide el nivel (level.spawn.side): 'right', 'left' o 'both'.
+  static pickSide(game) {
+    const mode = game.level.spawn?.side ?? 'both';
+    const side = mode === 'right' ? 1 : mode === 'left' ? -1 : Math.random() < 0.5 ? -1 : 1;
+    return { side, x: side < 0 ? -40 : game.world.w + 10, chase: mode === 'both' };
   }
 }

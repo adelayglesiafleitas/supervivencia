@@ -32,8 +32,14 @@ export const PLAYER = {
   respawnInvincibility: 150,
   respawnDelay: 80, // frames desde que muere hasta que reaparece
   muzzleOffset: 28,
-  fireCooldown: { normal: 7, spread: 11 },
-  spreadSeconds: 15,
+  powerSlots: 2, // poderes que puede guardar a la vez
+};
+
+// Armas. 'normal' es el disparo base (clic izquierdo, munición infinita).
+// Los poderes (clic derecho) se recogen, se guardan y gastan munición.
+export const WEAPONS = {
+  normal: { angles: [0], cooldown: 7 },
+  spread: { angles: [-0.3, -0.15, 0, 0.15, 0.3], cooldown: 11, ammo: 12 },
 };
 
 // Recompensas ------------------------------------------------------------
@@ -46,5 +52,6 @@ export const CONTROLS = {
   up: ['KeyW', 'ArrowUp'],
   down: ['KeyS', 'ArrowDown'],
   jump: ['KeyK', 'Space'],
-  fire: ['KeyJ', 'KeyZ'],
+  fire: ['Mouse0'], // clic izquierdo: disparo normal
+  power: ['Mouse2'], // clic derecho: usa el primer poder guardado
 };

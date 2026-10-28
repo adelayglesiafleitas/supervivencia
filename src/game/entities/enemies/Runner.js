@@ -7,19 +7,22 @@ import { RUNNER_ANIM as A } from '../../data/animations.js';
 export class Runner extends Enemy {
   constructor(game) {
     super('runner');
-    const { side, x } = Enemy.pickSide(game.world);
+    const { side, x, chase } = Enemy.pickSide(game);
     this.x = x;
     this.y = game.level.groundY - this.h;
     this.face = -side;
+    this.chase = chase; // false: cruza el escenario en línea recta
     this.speed = 2 + Math.random() * 0.8 + game.waves.number * 0.05;
   }
 
   update(game) {
     const p = game.player;
     this.t += 1 / 60;
-    this.face = p.x - this.x > 0 ? 1 : -1;
+    if (this.chase) {
+      this.face = p.x - this.x > 0 ? 1 : -1;
+      if (this.onGround && p.y + p.h < this.y + this.h - 40 && Math.random() < 0.02) this.vy = PHYSICS.jumpVelocity;
+    }
     this.vx = this.face * this.speed;
-    if (this.onGround && p.y + p.h < this.y + this.h - 40 && Math.random() < 0.02) this.vy = PHYSICS.jumpVelocity;
     moveBody(this, game.level.platforms, game.world, p.y > this.y + 20);
   }
 

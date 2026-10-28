@@ -1,7 +1,11 @@
 // Un nivel = datos. Para crear más niveles, copia este archivo y cámbialo.
 export const level01 = {
   id: 'level01',
+  name: 'NIVEL 1',
   groundY: 480,
+  // Por dónde entran los enemigos: 'right' (avanzan de derecha a izquierda), 'left' o 'both'.
+  // Con un solo lado, los corredores cruzan el escenario sin perseguir al jugador.
+  spawn: { side: 'right' },
   platforms: [
     { x: 0, y: 480, w: 960, h: 60, solid: true }, // suelo
     { x: 90, y: 370, w: 230, h: 12 },

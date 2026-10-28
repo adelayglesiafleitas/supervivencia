@@ -115,8 +115,7 @@ export class Game {
       score: this.score,
       wave: this.waves.number,
       seconds: Math.floor(this.time / 60),
-      weapon: this.player.weapon,
-      weaponSeconds: Math.ceil(this.player.weaponT / 60),
+      powers: this.player.powers.map((p) => ({ kind: p.kind, ammo: p.ammo })),
       banner: this.waves.banner > 0 ? this.waves.number : 0,
     };
   }

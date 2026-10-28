@@ -12,10 +12,10 @@ export function buildWave(n) {
   return queue;
 }
 
-// Frames entre aparición y aparición de enemigos.
+// Frames entre aparición y aparición de enemigos (60 frames = 1 s). Salen poco a poco.
 export function spawnInterval(n) {
-  return Math.max(25, 70 - n * 4);
+  return Math.max(45, 110 - n * 8) + Math.random() * 40;
 }
 
-export const FIRST_SPAWN_DELAY = 60;
+export const FIRST_SPAWN_DELAY = 150;
 export const BANNER_FRAMES = 120;
