@@ -1,0 +1,40 @@
+// Qué frames del atlas usa cada acción. Los nombres de frame ("fila_columna")
+// vienen de las hojas originales. Todas las poses miran a la derecha; el motor las voltea.
+
+export const PLAYER_ANIM = {
+  sheet: 'player',
+  stand: { h: ['0_4'], up: ['0_6'], upd: ['1_4'], downd: ['2_4'] },
+  standFire: { h: '0_5', up: '0_7' }, // destello al disparar quieto
+  run: {
+    h: ['3_5', '3_6', '3_7', '3_6'],
+    up: ['3_8', '3_9'],
+    upd: ['1_3', '1_4', '1_5', '1_4'],
+    downd: ['2_3', '2_4', '2_5', '2_4'],
+  },
+  jump: ['4_6', '4_7', '4_8', '4_9'], // voltereta (anclada al centro)
+  prone: ['4_5'],
+  dead: ['5_5', '5_6', '5_7', '5_8', '5_9'],
+  fps: { run: 12, jump: 14, dead: 7 },
+};
+
+export const RUNNER_ANIM = {
+  sheet: 'enemyRed',
+  run: ['1_0', '1_1', '1_2', '1_3'],
+  air: '1_3',
+  fps: 12,
+};
+
+export const SHOOTER_ANIM = {
+  sheet: 'enemyGreen',
+  run: ['1_0', '1_1', '1_2', '1_3'],
+  stand: '2_3',
+  shoot: '2_4',
+  fps: 9,
+};
+
+export const TURRET_ANIM = {
+  sheet: 'enemyRed',
+  closed: '3_0',
+  open: ['3_1', '3_2'],
+  fps: 10,
+};

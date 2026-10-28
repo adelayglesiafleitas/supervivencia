@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Survival Contra</title>
+<style>
+  html,body{margin:0;height:100%;background:#0b0b10;display:flex;align-items:center;justify-content:center}
+  canvas{background:#000;image-rendering:pixelated;max-width:100vw;max-height:100vh;border:2px solid #222}
+</style>
+</head>
+<body>
+<canvas id="c" width="960" height="540"></canvas>
+<script src="sprites/frames.js"></script>
+<script src="sprites/frames_enemies.js"></script>
+<script>
+/* =========================================================
+   SPRITES
+   Las poses salen de sprites/atlas_*.png (generado desde tu hoja).
+   Todas miran a la derecha; el juego las voltea.
+   Nombres de frame "fila_columna" según la hoja original.
+   Cuando cambies los sprites: reemplaza los atlas + frames.js
+   y ajusta las listas de abajo.
+   ========================================================= */
+const S = 2;                       // escala de dibujo (pixel art x2)
+const ATLAS = {};
+for (const n of ['p', 'en', 'en_g']) {     // p = jugador, en = enemigos rojos, en_g = enemigos verdes
+  const im = new Image();
+  const a = { img: im, ok: false };
+  im.onload = () => (a.ok = true);
+  im.src = 'sprites/atlas_' + n + '.png';
+  ATLAS[n] = a;
+}
+
+// animaciones del jugador: [estado][clase de apuntado] = frames
+const ANIM = {
+  stand: { h: ['0_4'], up: ['0_6'], upd: ['1_4'], downd: ['2_4'] },
+  run:   { h: ['3_5', '3_6', '3_7', '3_6'], up: ['3_8', '3_9'], upd: ['1_3', '1_4', '1_5', '1_4'], downd: ['2_3', '2_4', '2_5', '2_4'] },
+  jump:  ['4_6', '4_7', '4_8', '4_9'],        // voltereta (anclada al centro)
+  prone: ['4_5'],
+  dead:  ['5_5', '5_6', '5_7', '5_8', '5_9'],
+};
+const FPS = { run: 12, jump: 14, dead: 7 };
+
+// enemigos (hoja de enemigos, filas 2, 3 y 4)
+const EN = {
+  run:    ['E1_0', 'E1_1', 'E1_2', 'E1_3'],   // fila 2: corriendo
+  stand:  'E2_3', shoot: 'E2_4',              // fila 3: soldado disparando
+  turret: { closed: 'E3_0', open: ['E3_1', 'E3_2'] },   // fila 4: mortero
+};
+
+function aimClass(a) {
+  if (a.y < -0.5 && Math.abs(a.x) < 0.5) return 'up';
+  if (a.y < -0.1) return 'upd';
+  if (a.y > 0.1) return 'downd';
+  return 'h';
+}
+
+/* ========================= SETUP ========================= */
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+const W = cv.width, H = cv.height;
+const GRAV = 0.55, JUMP_V = -13, RUN_V = 3.4;
+const PH = 68, PH_PRONE = 28, PH_AIR = 40, PW = 26;   // hitboxes
+
+const platforms = [
+  { x: 0,   y: 480, w: 960, h: 60, solid: true },   // suelo
+  { x: 90,  y: 370, w: 230, h: 12 },
+  { x: 640, y: 370, w: 230, h: 12 },
+  { x: 365, y: 270, w: 230, h: 12 },
+];
+
+const keys = {};
+addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+  if (e.code === 'KeyR' && game.over) reset();
+});
+addEventListener('keyup', e => (keys[e.code] = false));
+const K = {
+  left:  () => keys.KeyA || keys.ArrowLeft,
+  right: () => keys.KeyD || keys.ArrowRight,
+  up:    () => keys.KeyW || keys.ArrowUp,
+  down:  () => keys.KeyS || keys.ArrowDown,
+  jump:  () => keys.KeyK || keys.Space,
+  fire:  () => keys.KeyJ || keys.KeyZ,
+};
+
+let player, enemies, bullets, ebullets, pickups, particles, game;
+
+function reset() {
+  player = {
+    x: W / 2 - PW / 2, y: 200, w: PW, h: PH, vx: 0, vy: 0, face: 1,
+    onGround: false, prone: false, cd: 0, inv: 120, dead: false, deadT: 0,
+    weapon: 'normal', weaponT: 0, jumpHeld: false, t: 0, aim: { x: 1, y: 0 }, firing: 0,
+  };
+  enemies = []; bullets = []; ebullets = []; pickups = []; particles = [];
+  game = { lives: 3, score: 0, wave: 0, spawnQ: [], spawnT: 0, over: false, time: 0, banner: 0 };
+  nextWave();
+}
+
+/* ========================= FÍSICA ========================= */
+function moveBody(b, dropThrough = false) {
+  b.x += b.vx;
+  b.x = Math.max(0, Math.min(W - b.w, b.x));
+  const prevBottom = b.y + b.h;
+  b.vy += GRAV;
+  b.y += b.vy;
+  b.onGround = false;
+  const bottom = b.y + b.h;
+  for (const p of platforms) {
+    if (b.x + b.w > p.x && b.x < p.x + p.w) {
+      if (b.vy >= 0 && prevBottom <= p.y + 1 && bottom >= p.y) {
+        if (!p.solid && dropThrough) continue;
+        b.y = p.y - b.h; b.vy = 0; b.onGround = true;
+      }
+    }
+  }
+}
+
+/* ========================= OLEADAS ========================= */
+function nextWave() {
+  game.wave++;
+  game.banner = 120;
+  const n = game.wave;
+  const q = [];
+  for (let i = 0; i < 3 + n * 2; i++) q.push('runner');
+  for (let i = 0; i < Math.floor(n * 1.2); i++) q.push('shooter');
+  // mortero (fila 4) desactivado por ahora. Para volver a activarlo:
+  // if (n >= 2) for (let i = 0; i < Math.ceil(n / 2); i++) q.push('turret');
+  q.sort(() => Math.random() - 0.5);
+  game.spawnQ = q;
+  game.spawnT = 60;
+}
+
+function spawn(type) {
+  const side = Math.random() < 0.5 ? -1 : 1;
+  const x = side < 0 ? -40 : W + 10;
+  const EH = 64;                      // altura de los soldados enemigos
+  const gy = 480 - EH;
+  if (type === 'runner')
+    enemies.push({ type, x, y: gy, w: PW, h: EH, vx: 0, vy: 0, hp: 1, face: -side, speed: 2 + Math.random() * 0.8 + game.wave * 0.05, t: 0, onGround: false });
+  else if (type === 'shooter')
+    enemies.push({ type, x, y: gy, w: PW, h: EH, vx: 0, vy: 0, hp: 3, face: -side, targetX: 100 + Math.random() * 760, cd: 80 + Math.random() * 60, t: 0, onGround: false, speed: 1.6, shooting: 0 });
+  else if (type === 'turret') {       // mortero fijo en el suelo
+    const tx = 80 + Math.random() * 800;
+    enemies.push({ type, x: tx, y: 480 - 56, w: 34, h: 56, vx: 0, vy: 0, hp: 4, face: 1, t: 0, cd: 90 + Math.random() * 60, openT: 0, onGround: true });
+    burst(tx + 17, 470, 10, '#c0392b');
+  }
+}
+
+/* ========================= UPDATE ========================= */
+function setHeight(b, nh) {                 // cambia la altura manteniendo los pies
+  if (nh !== b.h) { b.y += b.h - nh; b.h = nh; }
+}
+
+function shoot() {
+  const p = player, a = p.aim;
+  const cy = p.y + (p.prone ? p.h * 0.4 : p.h * 0.36);
+  const gx = p.x + p.w / 2 + a.x * 28;
+  const gy = cy + a.y * 28;
+  const base = Math.atan2(a.y, a.x);
+  const angles = p.weapon === 'spread' ? [-0.3, -0.15, 0, 0.15, 0.3] : [0];
+  for (const o of angles)
+    bullets.push({ x: gx, y: gy, vx: Math.cos(base + o) * 13, vy: Math.sin(base + o) * 13, life: 70 });
+  p.cd = p.weapon === 'spread' ? 11 : 7;
+  p.firing = 6;
+}
+
+function hurtPlayer() {
+  if (player.inv > 0 || player.dead) return;
+  player.dead = true; player.deadT = 0; player.t = 0;
+  setHeight(player, PH);
+  player.vy = -8; player.vx = -player.face * 2;
+  burst(player.x + 13, player.y + 30, 14, '#ff5a3c');
+}
+
+function burst(x, y, n, color) {
+  for (let i = 0; i < n; i++)
+    particles.push({ x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.7) * 6, life: 25 + Math.random() * 15, color });
+}
+
+function update() {
+  if (game.over) return;
+  game.time++;
+  const p = player;
+  if (game.banner > 0) game.banner--;
+
+  // ---- jugador ----
+  if (p.dead) {
+    p.deadT++; p.t += 1 / 60; p.vx *= 0.98; moveBody(p, true);
+    if (p.deadT > 80) {
+      game.lives--;
+      if (game.lives <= 0) { game.over = true; return; }
+      Object.assign(p, { x: W / 2 - PW / 2, y: -80, h: PH, vx: 0, vy: 0, dead: false, inv: 150, weapon: 'normal', weaponT: 0, prone: false, t: 0 });
+    }
+  } else {
+    if (p.inv > 0) p.inv--;
+    const l = K.left(), r = K.right(), u = K.up(), d = K.down();
+    const ax = (r ? 1 : 0) - (l ? 1 : 0);
+    const ay = (d ? 1 : 0) - (u ? 1 : 0);
+    if (ax) p.face = ax;
+
+    p.prone = p.onGround && d && !ax && !u;
+    setHeight(p, p.prone ? PH_PRONE : (p.onGround ? PH : PH_AIR));
+
+    p.vx = p.prone ? 0 : ax * RUN_V;
+
+    // salto / caer a través de plataforma
+    const onPlatform = p.y + p.h < 470;
+    const drop = d && K.jump() && p.onGround && onPlatform;
+    if (K.jump() && !p.jumpHeld && p.onGround && !(d && onPlatform)) { p.vy = JUMP_V; p.onGround = false; }
+    if (!K.jump() && p.vy < -4) p.vy = -4;      // salto variable
+    p.jumpHeld = !!K.jump();
+
+    // dirección de disparo (8 direcciones)
+    let aimX = ax, aimY = ay;
+    if (p.prone) { aimX = p.face; aimY = 0; }
+    else if (!ax && !ay) { aimX = p.face; aimY = 0; }
+    else if (!ax && ay > 0 && p.onGround) { aimX = p.face; aimY = 0; }
+    const m = Math.hypot(aimX, aimY) || 1;
+    p.aim = { x: aimX / m, y: aimY / m };
+
+    moveBody(p, drop);
+    if (drop) { p.y += 3; p.onGround = false; }
+
+    p.cd--;
+    if (p.firing > 0) p.firing--;
+    if (K.fire() && p.cd <= 0) shoot();
+    if (p.weaponT > 0 && --p.weaponT === 0) p.weapon = 'normal';
+
+    p.t += 1 / 60;
+  }
+
+  // ---- spawns ----
+  if (game.spawnQ.length && --game.spawnT <= 0) {
+    spawn(game.spawnQ.pop());
+    game.spawnT = Math.max(25, 70 - game.wave * 4);
+  }
+  if (!game.spawnQ.length && enemies.length === 0 && !p.dead) nextWave();
+
+  // ---- enemigos ----
+  for (const e of enemies) {
+    e.t += 1 / 60;
+    const dx = p.x - e.x;
+    if (e.type === 'runner') {
+      e.face = dx > 0 ? 1 : -1;
+      e.vx = e.face * e.speed;
+      if (e.onGround && p.y + p.h < e.y + e.h - 40 && Math.random() < 0.02) e.vy = JUMP_V;
+      moveBody(e, p.y > e.y + 20);
+    } else if (e.type === 'shooter') {
+      e.face = dx > 0 ? 1 : -1;
+      const arrived = Math.abs(e.x - e.targetX) < 6;
+      e.vx = arrived ? 0 : Math.sign(e.targetX - e.x) * e.speed;
+      moveBody(e);
+      e.cd--;
+      if (e.shooting > 0) e.shooting--;
+      if (e.cd <= 0 && arrived) {
+        const sx = e.x + e.w / 2, sy = e.y + 24;
+        const ang = Math.atan2(p.y + p.h * 0.4 - sy, p.x + p.w / 2 - sx);
+        ebullets.push({ x: sx + Math.cos(ang) * 24, y: sy + Math.sin(ang) * 24, vx: Math.cos(ang) * 4.2, vy: Math.sin(ang) * 4.2, life: 200 });
+        e.cd = 100 + Math.random() * 40;
+        e.shooting = 10;
+      }
+    } else if (e.type === 'turret') {
+      e.face = dx > 0 ? 1 : -1;
+      e.cd--;
+      if (e.openT > 0) e.openT--;
+      if (e.cd <= 0) {                // dispara un proyectil en parábola hacia el jugador
+        const sx = e.x + e.w / 2, sy = e.y + 6, T = 55, g = 0.25;
+        const tx = p.x + p.w / 2, ty = p.y + p.h * 0.5;
+        ebullets.push({ x: sx, y: sy, vx: (tx - sx) / T, vy: (ty - sy - 0.5 * g * T * T) / T, g, life: 200 });
+        e.cd = 140 + Math.random() * 60;
+        e.openT = 40;
+      }
+    }
+  }
+
+  // ---- balas jugador ----
+  for (const b of bullets) {
+    b.x += b.vx; b.y += b.vy; b.life--;
+    for (const e of enemies) {
+      if (e.hp > 0 && b.life > 0 && b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
+        e.hp--; b.life = 0; burst(b.x, b.y, 3, '#ffd34a');
+        if (e.hp <= 0) {
+          game.score += e.type === 'shooter' ? 300 : e.type === 'drone' ? 200 : 100;
+          burst(e.x + e.w / 2, e.y + e.h / 2, 12, '#ff7a3c');
+          if (Math.random() < 0.12) pickups.push({ x: e.x, y: e.y, vy: 0, w: 26, h: 16, type: 'spread' });
+        }
+      }
+    }
+  }
+  bullets = bullets.filter(b => b.life > 0 && b.x > -20 && b.x < W + 20 && b.y > -20 && b.y < H);
+  enemies = enemies.filter(e => e.hp > 0 && e.x > -90 && e.x < W + 90);
+
+  // ---- balas enemigas y contacto ----
+  for (const b of ebullets) {
+    if (b.g) b.vy += b.g;
+    b.x += b.vx; b.y += b.vy; b.life--;
+    if (!p.dead && b.x > p.x && b.x < p.x + p.w && b.y > p.y && b.y < p.y + p.h) { hurtPlayer(); b.life = 0; }
+  }
+  ebullets = ebullets.filter(b => b.life > 0 && b.x > -20 && b.x < W + 20 && b.y > -20 && b.y < H);
+  for (const e of enemies)
+    if (!p.dead && e.x < p.x + p.w && e.x + e.w > p.x && e.y < p.y + p.h && e.y + e.h > p.y) hurtPlayer();
+
+  // ---- pickups ----
+  for (const k of pickups) {
+    k.vy += GRAV * 0.6; k.y += k.vy;
+    for (const pl of platforms) if (k.x + k.w > pl.x && k.x < pl.x + pl.w && k.y + k.h >= pl.y && k.y + k.h < pl.y + 20 && k.vy > 0) { k.y = pl.y - k.h; k.vy = 0; }
+    if (!p.dead && k.x < p.x + p.w && k.x + k.w > p.x && k.y < p.y + p.h && k.y + k.h > p.y) { p.weapon = 'spread'; p.weaponT = 60 * 15; k.taken = true; }
+  }
+  pickups = pickups.filter(k => !k.taken);
+
+  for (const q of particles) { q.x += q.vx; q.y += q.vy; q.vy += 0.25; q.life--; }
+  particles = particles.filter(q => q.life > 0);
+}
+
+/* ========================= DRAW ========================= */
+// dibuja un frame del atlas. mode 'foot' = anclado a los pies, 'center' = al centro de la caja
+function drawFrame(atlasKey, name, e, mode, color) {
+  const at = ATLAS[atlasKey], f = FRAMES[name];
+  const flip = (e.face || 1) < 0;
+  if (at && at.ok && f) {
+    ctx.save();
+    if (mode === 'center') {
+      ctx.translate(e.x + e.w / 2, e.y + e.h / 2);
+      if (flip) ctx.scale(-1, 1);
+      ctx.drawImage(at.img, f.x, f.y, f.w, f.h, -f.w * S / 2, -f.h * S / 2, f.w * S, f.h * S);
+    } else {
+      ctx.translate(e.x + e.w / 2, e.y + e.h);
+      if (flip) ctx.scale(-1, 1);
+      ctx.drawImage(at.img, f.x, f.y, f.w, f.h, -f.ax * S, -f.h * S, f.w * S, f.h * S);
+    }
+    ctx.restore();
+    return;
+  }
+  ctx.fillStyle = color || '#2e86de';      // placeholder si falta el atlas
+  ctx.fillRect(e.x, e.y, e.w, e.h);
+}
+
+function pick(list, t, fps) { return list[Math.floor(t * fps) % list.length]; }
+
+function drawPlayer() {
+  const p = player;
+  if (p.dead) {
+    const i = Math.min(ANIM.dead.length - 1, Math.floor(p.t * FPS.dead));
+    return drawFrame('p', ANIM.dead[i], p, 'foot');
+  }
+  if (!p.onGround) return drawFrame('p', pick(ANIM.jump, p.t, FPS.jump), p, 'center');
+  if (p.prone) return drawFrame('p', ANIM.prone[0], p, 'foot');
+  const moving = Math.abs(p.vx) > 0.1;
+  const cls = aimClass(p.aim);
+  if (moving) return drawFrame('p', pick(ANIM.run[cls], p.t, FPS.run), p, 'foot');
+  let name = ANIM.stand[cls][0];
+  if (cls === 'h' && p.firing > 0) name = '0_5';
+  if (cls === 'up' && p.firing > 0) name = '0_7';
+  return drawFrame('p', name, p, 'foot');
+}
+
+function drawEnemy(e) {
+  if (e.type === 'turret') {
+    const f = e.openT > 0 ? pick(EN.turret.open, e.t, 10) : EN.turret.closed;
+    return drawFrame('en', f, e, 'foot');
+  }
+  if (e.type === 'runner') {
+    if (!e.onGround) return drawFrame('en', 'E1_3', e, 'foot');
+    return drawFrame('en', pick(EN.run, e.t, 12), e, 'foot');
+  }
+  // shooter (soldado verde)
+  if (Math.abs(e.vx) > 0.1) return drawFrame('en_g', pick(EN.run, e.t, 9), e, 'foot');
+  return drawFrame('en_g', e.shooting > 0 ? EN.shoot : EN.stand, e, 'foot');
+}
+
+function draw() {
+  // fondo
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#1a1030'); g.addColorStop(1, '#3a1a28');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#ffffff10';
+  for (let i = 0; i < 40; i++) ctx.fillRect((i * 97) % W, (i * 53) % 300, 2, 2);
+
+  for (const p of platforms) {
+    ctx.fillStyle = p.solid ? '#2b2b35' : '#4a4a58';
+    ctx.fillRect(p.x, p.y, p.w, p.h);
+    ctx.fillStyle = '#7a7a8c';
+    ctx.fillRect(p.x, p.y, p.w, 3);
+  }
+
+  for (const k of pickups) {
+    ctx.fillStyle = '#ff3c6e'; ctx.fillRect(k.x, k.y, k.w, k.h);
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 12px monospace'; ctx.fillText('S', k.x + 9, k.y + 12);
+  }
+
+  for (const e of enemies) drawEnemy(e);
+
+  const p = player;
+  if (!(p.inv > 0 && Math.floor(p.inv / 4) % 2 && !p.dead)) drawPlayer();
+
+  ctx.fillStyle = '#ffe36b';
+  for (const b of bullets) ctx.fillRect(b.x - 2, b.y - 2, 5, 5);
+  ctx.fillStyle = '#ff5a5a';
+  for (const b of ebullets) { ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, 7); ctx.fill(); }
+  for (const q of particles) { ctx.fillStyle = q.color; ctx.fillRect(q.x, q.y, 3, 3); }
+
+  // HUD
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 16px monospace';
+  ctx.fillText('VIDAS ' + '♥'.repeat(Math.max(0, game.lives)), 16, 26);
+  ctx.fillText('OLEADA ' + game.wave, 16, 48);
+  ctx.textAlign = 'right';
+  ctx.fillText('PUNTOS ' + game.score, W - 16, 26);
+  ctx.fillText('TIEMPO ' + Math.floor(game.time / 60) + 's', W - 16, 48);
+  if (p.weapon === 'spread') ctx.fillText('SPREAD ' + Math.ceil(p.weaponT / 60), W - 16, 70);
+  ctx.textAlign = 'left';
+
+  if (game.banner > 0 && !game.over) {
+    ctx.textAlign = 'center'; ctx.font = 'bold 40px monospace';
+    ctx.fillText('OLEADA ' + game.wave, W / 2, 150); ctx.textAlign = 'left';
+  }
+  if (game.over) {
+    ctx.fillStyle = '#000b'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'center';
+    ctx.font = 'bold 48px monospace'; ctx.fillText('GAME OVER', W / 2, 230);
+    ctx.font = '20px monospace';
+    ctx.fillText('Oleada ' + game.wave + '  ·  ' + game.score + ' puntos  ·  ' + Math.floor(game.time / 60) + 's', W / 2, 275);
+    ctx.fillText('Pulsa R para reintentar', W / 2, 320); ctx.textAlign = 'left';
+  }
+  if (game.time < 400) {
+    ctx.font = '14px monospace'; ctx.fillStyle = '#ffffffaa'; ctx.textAlign = 'center';
+    ctx.fillText('A/D mover · W apuntar arriba · S agacharse · K/Espacio saltar · S+salto bajar de plataforma · J/Z disparar', W / 2, H - 14);
+    ctx.textAlign = 'left';
+  }
+}
+
+/* ========================= LOOP ========================= */
+let last = performance.now(), acc = 0;
+function frame(now) {
+  acc += Math.min(100, now - last); last = now;
+  while (acc >= 1000 / 60) { update(); acc -= 1000 / 60; }
+  draw();
+  requestAnimationFrame(frame);
+}
+reset();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

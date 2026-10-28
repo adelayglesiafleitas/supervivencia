@@ -1,0 +1,117 @@
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: #0b0b10;
+  color: #fff;
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+}
+
+#root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* El escenario mantiene 16:9 y todo el texto escala con su ancho (cqw). */
+.stage {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  container-type: inline-size;
+  background: #000;
+  overflow: hidden;
+}
+
+.game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-size: 1.7cqw;
+  font-weight: bold;
+}
+.hud-left {
+  position: absolute;
+  left: 1.7cqw;
+  top: 1.2cqw;
+  line-height: 1.4;
+}
+.hud-right {
+  position: absolute;
+  right: 1.7cqw;
+  top: 1.2cqw;
+  text-align: right;
+  line-height: 1.4;
+}
+.hud-banner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 22%;
+  text-align: center;
+  font-size: 4.2cqw;
+}
+.hud-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.2cqw;
+  text-align: center;
+  font-size: 1.45cqw;
+  font-weight: normal;
+  opacity: 0.7;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+}
+.overlay.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.overlay.dim {
+  background: rgba(0, 0, 0, 0.72);
+}
+.overlay.error {
+  color: #ff7a7a;
+}
+.overlay h1 {
+  margin: 0 0 1cqw;
+  font-size: 5cqw;
+  letter-spacing: 0.3cqw;
+}
+.overlay .sub {
+  margin: 0 0 2.4cqw;
+  font-size: 2cqw;
+}
+.overlay .controls {
+  margin-top: 3cqw;
+  font-size: 1.4cqw;
+  opacity: 0.7;
+  line-height: 1.6;
+}
+.overlay button {
+  font: inherit;
+  font-size: 2cqw;
+  font-weight: bold;
+  color: #fff;
+  background: #c0392b;
+  border: 0;
+  padding: 0.9cqw 2.6cqw;
+  cursor: pointer;
+}
+.overlay button:hover {
+  background: #e74c3c;
+}
