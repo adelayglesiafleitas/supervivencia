@@ -15,6 +15,7 @@ export default function App() {
   const [hud, setHud] = useState(null);
   const [result, setResult] = useState(null);
   const gameRef = useRef(null);
+  const modeRef = useRef('survival'); // último modo elegido (para reintentar)
 
   useEffect(() => {
     new Assets()
@@ -23,10 +24,11 @@ export default function App() {
       .catch((e) => setError(e.message));
   }, []);
 
-  const startGame = useCallback(() => {
+  const startGame = useCallback((mode) => {
+    if (typeof mode === 'string') modeRef.current = mode;
     setResult(null);
     setScreen('playing');
-    gameRef.current?.start();
+    gameRef.current?.start(modeRef.current);
   }, []);
 
   const handleGameOver = useCallback((r) => {
@@ -36,8 +38,10 @@ export default function App() {
 
   useEffect(() => {
     const onKey = (e) => {
-      if (screen === 'menu' && e.code === 'Enter') startGame();
+      if (screen === 'menu' && e.code === 'Digit1') startGame('survival');
+      if (screen === 'menu' && e.code === 'Digit2') startGame('jungle');
       if (screen === 'over' && (e.code === 'KeyR' || e.code === 'Enter')) startGame();
+      if (screen === 'over' && e.code === 'Escape') setScreen('menu');
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -50,7 +54,7 @@ export default function App() {
       {!assets && !error && <div className="overlay center">Cargando...</div>}
       {error && <div className="overlay center error">{error}</div>}
       {assets && screen === 'menu' && <MainMenu onStart={startGame} />}
-      {screen === 'over' && result && <GameOver result={result} onRestart={startGame} />}
+      {screen === 'over' && result && <GameOver result={result} onRestart={() => startGame()} onMenu={() => setScreen('menu')} />}
     </div>
   );
 }

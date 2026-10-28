@@ -5,7 +5,7 @@ export default function Hud({ hud }) {
       <div className="hud-left">
         <div>VIDAS {'♥'.repeat(Math.max(0, hud.lives))}</div>
         <div>
-          {hud.level} · OLEADA {hud.wave}
+          {hud.level} · {hud.progress != null ? `${hud.progress}%` : `OLEADA ${hud.wave}`}
         </div>
       </div>
       <div className="hud-right">
@@ -20,7 +20,7 @@ export default function Hud({ hud }) {
           ))}
         </div>
       </div>
-      {hud.banner > 0 && <div className="hud-banner">OLEADA {hud.banner}</div>}
+      {hud.banner > 0 && hud.progress == null && <div className="hud-banner">OLEADA {hud.banner}</div>}
       {hud.seconds < 7 && (
         <div className="hud-hint">
           A/D mover · W apuntar arriba · S agacharse · K/Espacio saltar · S+salto bajar de plataforma · Clic izq. disparar · Clic der. poder

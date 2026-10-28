@@ -7,9 +7,9 @@ import { LEAPER_ANIM as A } from '../../data/animations.js';
 export class Leaper extends Enemy {
   constructor(game) {
     super('leaper');
-    const { side, x } = Enemy.pickSide(game);
+    const { side, x, y } = Enemy.pickSide(game, this.h);
     this.x = x;
-    this.y = game.level.groundY - this.h;
+    this.y = y;
     this.face = -side;
     this.speed = this.stats.speed + game.waves.number * 0.04;
     this.jumpCd = 30; // frames de espera tras aterrizar antes de volver a saltar

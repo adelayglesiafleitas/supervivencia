@@ -26,9 +26,27 @@ export class Enemy extends Entity {
 
   // Lado por el que entra al escenario (-1 izquierda, 1 derecha) y su X inicial.
   // Lo decide el nivel (level.spawn.side): 'right', 'left' o 'both'.
-  static pickSide(game) {
-    const mode = game.level.spawn?.side ?? 'both';
+  // Devuelve también la altura inicial: el suelo en niveles planos o, en niveles con relieve,
+  // una plataforma que haya justo fuera de la pantalla por ese lado.
+  static pickSide(game, h = 64) {
+    const { level, world, camera } = game;
+    const mode = level.spawn?.side ?? 'both';
     const side = mode === 'right' ? 1 : mode === 'left' ? -1 : Math.random() < 0.5 ? -1 : 1;
-    return { side, x: side < 0 ? -40 : game.world.w + 10, chase: mode === 'both' };
+    let x = side < 0 ? camera.x - 40 : camera.x + world.w + 10;
+    let y;
+    if (Number.isFinite(level.groundY)) {
+      y = level.groundY - h;
+    } else {
+      y = -100;
+      for (let i = 0; i < 80; i++, x += side * 16) {
+        const cx = x + 13;
+        const under = level.platforms.filter((p) => p.x <= cx && cx <= p.x + p.w);
+        if (under.length) {
+          y = under[Math.floor(Math.random() * under.length)].y - h - 1;
+          break;
+        }
+      }
+    }
+    return { side, x, y, chase: mode === 'both' };
   }
 }

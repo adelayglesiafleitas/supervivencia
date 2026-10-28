@@ -17,12 +17,14 @@ export class Player extends Entity {
   constructor(world) {
     super({ w: PLAYER.w, h: PLAYER.h });
     this.world = world;
+    this.clamp = false; // los límites los pone la cámara (ver update)
     this.reset();
   }
 
-  reset() {
-    this.x = this.world.w / 2 - PLAYER.w / 2;
-    this.y = 200;
+  reset(level) {
+    const start = level?.playerStart;
+    this.x = start ? start.x : this.world.w / 2 - PLAYER.w / 2;
+    this.y = start ? start.y : 200;
     this.h = PLAYER.h;
     this.vx = 0;
     this.vy = 0;
@@ -40,8 +42,19 @@ export class Player extends Entity {
     this.firing = 0;
   }
 
-  respawn() {
+  // En niveles con scroll reaparece sobre una plataforma de la pantalla actual.
+  respawn(game) {
     this.x = this.world.w / 2 - PLAYER.w / 2;
+    if (game.level.scroll) {
+      this.x = game.camera.x + 200;
+      for (let i = 0; i < 40; i++) {
+        const cx = game.camera.x + 180 + i * 24;
+        if (game.level.platforms.some((q) => q.x <= cx && cx <= q.x + q.w)) {
+          this.x = cx - PLAYER.w / 2;
+          break;
+        }
+      }
+    }
     this.y = -80;
     this.h = PLAYER.h;
     this.vx = 0;
@@ -67,6 +80,7 @@ export class Player extends Entity {
       this.t += 1 / 60;
       this.vx *= 0.98;
       moveBody(this, level.platforms, world, true);
+      this.limitToLevel(game);
       if (this.deadT > PLAYER.respawnDelay) game.onPlayerDied();
       return;
     }
@@ -86,7 +100,7 @@ export class Player extends Entity {
     this.vx = this.prone ? 0 : ax * PHYSICS.runSpeed;
 
     // salto / bajar de plataforma
-    const onPlatform = this.y + this.h < level.groundY - 10;
+    const onPlatform = !!this.standing && !this.standing.solid;
     const drop = d && jump && this.onGround && onPlatform;
     if (jump && !this.jumpHeld && this.onGround && !(d && onPlatform)) {
       this.vy = PHYSICS.jumpVelocity;
@@ -112,6 +126,8 @@ export class Player extends Entity {
     this.aim = { x: aimX / m, y: aimY / m };
 
     moveBody(this, level.platforms, world, drop);
+    this.limitToLevel(game);
+    if (level.killY && this.y > level.killY) return this.hurt(game, true); // cayó al agua
     if (drop) {
       this.y += 3;
       this.onGround = false;
@@ -125,6 +141,12 @@ export class Player extends Entity {
     }
 
     this.t += 1 / 60;
+  }
+
+  // No puede salir por la izquierda de la cámara ni por el final del nivel.
+  limitToLevel(game) {
+    const maxX = (game.level.width ?? game.world.w) - this.w;
+    this.x = Math.max(game.camera.x, Math.min(maxX, this.x));
   }
 
   usePower(game) {
@@ -149,8 +171,8 @@ export class Player extends Entity {
     this.firing = 6;
   }
 
-  hurt(game) {
-    if (this.inv > 0 || this.dead) return;
+  hurt(game, force = false) {
+    if ((this.inv > 0 && !force) || this.dead) return;
     this.dead = true;
     this.deadT = 0;
     this.t = 0;

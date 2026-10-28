@@ -131,3 +131,9 @@ body,
 .overlay button:hover {
   background: #e74c3c;
 }
+
+/* Selector de modo del menú */
+.menu-modes { display: flex; gap: 16px; margin: 8px 0 16px; flex-wrap: wrap; justify-content: center; }
+.menu-modes button { display: flex; flex-direction: column; gap: 6px; min-width: 15em; }
+.menu-modes button small { font-size: 0.6em; font-weight: normal; opacity: 0.85; }
+.overlay button.secondary { margin-top: 10px; background: transparent; border: 1px solid #ffffff55; }

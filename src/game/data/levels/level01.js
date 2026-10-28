@@ -1,7 +1,7 @@
 // Un nivel = datos. Para crear más niveles, copia este archivo y cámbialo.
 export const level01 = {
   id: 'level01',
-  name: 'NIVEL 1',
+  name: 'SUPERVIVENCIA',
   groundY: 480,
   // Por dónde entran los enemigos: 'right' (avanzan de derecha a izquierda), 'left' o 'both'.
   // Con un solo lado, los corredores cruzan el escenario sin perseguir al jugador.

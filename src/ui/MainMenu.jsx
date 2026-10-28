@@ -2,8 +2,17 @@ export default function MainMenu({ onStart }) {
   return (
     <div className="overlay center dim">
       <h1>SURVIVAL CONTRA</h1>
-      <p className="sub">Sobrevive a las oleadas. Un solo escenario.</p>
-      <button onClick={onStart}>Empezar (Enter)</button>
+      <p className="sub">Elige un modo</p>
+      <div className="menu-modes">
+        <button onClick={() => onStart('survival')}>
+          Supervivencia (1)
+          <small>Un solo escenario. Aguanta las oleadas.</small>
+        </button>
+        <button onClick={() => onStart('jungle')}>
+          Nivel 1 (2)
+          <small>Avanza por la jungla hasta la base.</small>
+        </button>
+      </div>
       <p className="controls">
         A/D mover · W apuntar arriba · S agacharse · K/Espacio saltar · S + salto: bajar de plataforma
         <br />

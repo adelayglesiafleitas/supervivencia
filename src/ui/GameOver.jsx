@@ -1,11 +1,15 @@
-export default function GameOver({ result, onRestart }) {
+export default function GameOver({ result, onRestart, onMenu }) {
   return (
     <div className="overlay center dim">
-      <h1>GAME OVER</h1>
+      <h1>{result.won ? 'NIVEL COMPLETADO' : 'GAME OVER'}</h1>
       <p className="sub">
-        Oleada {result.wave} · {result.score} puntos · {result.seconds}s
+        {result.won ? '' : `Oleada ${result.wave} · `}
+        {result.score} puntos · {result.seconds}s
       </p>
       <button onClick={onRestart}>Reintentar (R)</button>
+      <button className="secondary" onClick={onMenu}>
+        Menú (Esc)
+      </button>
     </div>
   );
 }

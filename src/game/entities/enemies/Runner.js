@@ -7,9 +7,9 @@ import { RUNNER_ANIM as A } from '../../data/animations.js';
 export class Runner extends Enemy {
   constructor(game) {
     super('runner');
-    const { side, x, chase } = Enemy.pickSide(game);
+    const { side, x, y, chase } = Enemy.pickSide(game, this.h);
     this.x = x;
-    this.y = game.level.groundY - this.h;
+    this.y = y;
     this.face = -side;
     this.chase = chase; // false: cruza el escenario en línea recta
     this.speed = 2 + Math.random() * 0.8 + game.waves.number * 0.05;

@@ -3,22 +3,24 @@ import { EventBus } from './core/EventBus.js';
 import { Input } from './core/Input.js';
 import { Loop } from './core/Loop.js';
 import { Renderer } from './core/Renderer.js';
-import { level01 } from './data/levels/level01.js';
+import { LEVELS } from './data/levels/index.js';
 import { Player } from './entities/Player.js';
 import { CollisionSystem } from './systems/CollisionSystem.js';
 import { Particles } from './systems/Particles.js';
+import { StreamSystem } from './systems/StreamSystem.js';
 import { WaveSystem } from './systems/WaveSystem.js';
 import { drawLevel } from './render/drawLevel.js';
 
-const inBounds = (b, w, h) => b.life > 0 && b.x > -20 && b.x < w + 20 && b.y > -20 && b.y < h;
+const inBounds = (b, cam, w, h) => b.life > 0 && b.x > cam - 20 && b.x < cam + w + 20 && b.y > -20 && b.y < h;
 
 // Orquesta una partida. No sabe nada de React: la interfaz se comunica con él
 // solo por el bus de eventos ('hud', 'gameover') y los métodos start() / destroy().
 export class Game {
-  constructor({ canvas, assets, bus = new EventBus(), level = level01 }) {
+  constructor({ canvas, assets, bus = new EventBus(), level = LEVELS.survival }) {
     this.bus = bus;
     this.world = WORLD;
     this.level = level;
+    this.camera = { x: 0 }; // esquina izquierda de lo que se ve (niveles con scroll)
     this.input = new Input(CONTROLS);
     this.renderer = new Renderer(canvas, { world: WORLD, ...RENDER }, assets);
     this.player = new Player(WORLD);
@@ -37,13 +39,19 @@ export class Game {
     this.enemyProjectiles = [];
     this.pickups = [];
     this.particles.clear();
-    this.player.reset();
+    this.camera.x = 0;
+    this.player.reset(this.level);
     this.lives = PLAYER.lives;
     this.score = 0;
     this.time = 0; // frames
   }
 
-  start() {
+  // modeId: clave de LEVELS ('survival', 'jungle'). Sin argumento repite el modo actual.
+  start(modeId) {
+    if (modeId && LEVELS[modeId]) {
+      this.level = LEVELS[modeId];
+      this.waves = this.level.mode === 'stream' ? new StreamSystem() : new WaveSystem();
+    }
     this.resetWorld();
     this.state = 'playing';
     this.input.attach();
@@ -58,14 +66,25 @@ export class Game {
     this.bus.clear();
   }
 
+  // La cámara sigue al jugador hacia la derecha y nunca retrocede (como en Contra).
+  updateCamera() {
+    const { level, world, player, camera } = this;
+    if (!level.scroll) return;
+    camera.x = Math.max(camera.x, Math.min(level.width - world.w, player.cx - world.w * 0.45));
+  }
+
+  finish(won) {
+    this.state = 'over';
+    this.emitHud();
+    this.bus.emit('gameover', { won, score: this.score, wave: this.waves.number, seconds: Math.floor(this.time / 60) });
+  }
+
   onPlayerDied() {
     this.lives--;
     if (this.lives <= 0) {
-      this.state = 'over';
-      this.emitHud();
-      this.bus.emit('gameover', { score: this.score, wave: this.waves.number, seconds: Math.floor(this.time / 60) });
+      this.finish(false);
     } else {
-      this.player.respawn();
+      this.player.respawn(this);
     }
   }
 
@@ -76,6 +95,8 @@ export class Game {
 
     this.player.update(this);
     if (this.state !== 'playing') return;
+    this.updateCamera();
+    if (this.level.goalX && !this.player.dead && this.player.cx > this.level.goalX) return this.finish(true);
 
     this.waves.update(this);
     for (const e of this.enemies) e.update(this);
@@ -86,10 +107,11 @@ export class Game {
     this.collisions.update(this);
 
     const { w, h } = this.world;
-    this.projectiles = this.projectiles.filter((b) => inBounds(b, w, h));
-    this.enemyProjectiles = this.enemyProjectiles.filter((b) => inBounds(b, w, h));
-    this.enemies = this.enemies.filter((e) => !e.dead && e.x > -90 && e.x < w + 90);
-    this.pickups = this.pickups.filter((k) => !k.taken);
+    const cam = this.camera.x;
+    this.projectiles = this.projectiles.filter((b) => inBounds(b, cam, w, h));
+    this.enemyProjectiles = this.enemyProjectiles.filter((b) => inBounds(b, cam, w, h));
+    this.enemies = this.enemies.filter((e) => !e.dead && e.x > cam - 90 && e.x < cam + w + 90 && e.y < h + 100);
+    this.pickups = this.pickups.filter((k) => !k.taken && k.y < h + 100);
     this.particles.update();
 
     if (this.time % 6 === 0) this.emitHud();
@@ -98,13 +120,16 @@ export class Game {
   render() {
     const r = this.renderer;
     r.begin();
-    drawLevel(r.ctx, this.level, this.world);
+    r.ctx.save();
+    r.ctx.translate(-this.camera.x, 0); // todo lo del mundo se dibuja desplazado por la cámara
+    drawLevel(r.ctx, this.level, this.world, r.assets, this.camera);
     for (const k of this.pickups) k.draw(r);
     for (const e of this.enemies) e.draw(r);
     this.player.draw(r);
     for (const b of this.projectiles) b.draw(r.ctx);
     for (const b of this.enemyProjectiles) b.draw(r.ctx);
     this.particles.draw(r.ctx);
+    r.ctx.restore();
   }
 
   getHud() {
@@ -117,6 +142,7 @@ export class Game {
       seconds: Math.floor(this.time / 60),
       powers: this.player.powers.map((p) => ({ kind: p.kind, ammo: p.ammo })),
       banner: this.waves.banner > 0 ? this.waves.number : 0,
+      progress: this.level.scroll ? Math.min(100, Math.round((this.player.cx / this.level.goalX) * 100)) : null,
     };
   }
 

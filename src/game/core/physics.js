@@ -9,6 +9,7 @@ export function moveBody(body, platforms, world, dropThrough = false) {
   body.vy += PHYSICS.gravity;
   body.y += body.vy;
   body.onGround = false;
+  body.standing = null;
   const bottom = body.y + body.h;
   for (const p of platforms) {
     if (body.x + body.w > p.x && body.x < p.x + p.w) {
@@ -17,6 +18,7 @@ export function moveBody(body, platforms, world, dropThrough = false) {
         body.y = p.y - body.h;
         body.vy = 0;
         body.onGround = true;
+        body.standing = p;
       }
     }
   }
