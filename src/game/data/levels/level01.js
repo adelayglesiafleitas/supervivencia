@@ -7,7 +7,7 @@ export const level01 = {
   // Con un solo lado, los corredores cruzan el escenario sin perseguir al jugador.
   spawn: { side: 'right' },
   platforms: [
-    { x: 0, y: 480, w: 960, h: 60, solid: true }, // suelo
+    { x: -200, y: 480, w: 1360, h: 60, solid: true }, // suelo
     { x: 90, y: 370, w: 230, h: 12 },
     { x: 640, y: 370, w: 230, h: 12 },
     { x: 365, y: 270, w: 230, h: 12 },

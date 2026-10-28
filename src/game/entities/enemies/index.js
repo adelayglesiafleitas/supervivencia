@@ -1,9 +1,10 @@
 import { Runner } from './Runner.js';
 import { Shooter } from './Shooter.js';
 import { Turret } from './Turret.js';
+import { Leaper } from './Leaper.js';
 
 // Registro de enemigos: nombre usado en waves.js -> clase.
-export const ENEMY_TYPES = { runner: Runner, shooter: Shooter, turret: Turret };
+export const ENEMY_TYPES = { runner: Runner, shooter: Shooter, turret: Turret, leaper: Leaper };
 
 export function createEnemy(type, game) {
   const EnemyClass = ENEMY_TYPES[type];

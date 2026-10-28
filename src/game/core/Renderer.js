@@ -34,7 +34,7 @@ export class Renderer {
       ctx.fillRect(body.x, body.y, body.w, body.h);
       return;
     }
-    const S = SPRITE_SCALE;
+    const S = sheet.scale ?? SPRITE_SCALE; // escala propia del atlas (si tiene más resolución)
     ctx.save();
     if (mode === 'center') {
       ctx.translate(body.x + body.w / 2, body.y + body.h / 2);

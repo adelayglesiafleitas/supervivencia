@@ -11,6 +11,7 @@ export class Enemy extends Entity {
     this.stats = stats;
     this.hp = stats.hp;
     this.score = stats.score;
+    this.clamp = false; // entran y salen por los bordes de la pantalla
   }
 
   // Devuelve true si el golpe lo mata.

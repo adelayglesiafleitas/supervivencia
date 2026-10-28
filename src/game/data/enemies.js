@@ -3,4 +3,5 @@ export const ENEMY_STATS = {
   runner: { w: 26, h: 64, hp: 1, score: 100 },
   shooter: { w: 26, h: 64, hp: 3, score: 300, speed: 1.6 },
   turret: { w: 34, h: 56, hp: 4, score: 200 },
+  leaper: { w: 26, h: 50, hp: 2, score: 250, speed: 2.2 },
 };

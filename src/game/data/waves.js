@@ -7,6 +7,7 @@ export function buildWave(n) {
   const queue = [];
   for (let i = 0; i < 3 + n * 2; i++) queue.push('runner');
   for (let i = 0; i < Math.floor(n * 1.2); i++) queue.push('shooter');
+  for (let i = 0; i < 1 + Math.floor(n / 2); i++) queue.push('leaper'); // saltan a las plataformas a buscarte
   if (TURRETS_ENABLED && n >= 2) for (let i = 0; i < Math.ceil(n / 2); i++) queue.push('turret');
   queue.sort(() => Math.random() - 0.5);
   return queue;

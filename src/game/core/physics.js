@@ -4,7 +4,7 @@ import { PHYSICS } from '../config.js';
 // Las plataformas no sólidas se atraviesan desde abajo y se pueden "soltar" (dropThrough).
 export function moveBody(body, platforms, world, dropThrough = false) {
   body.x += body.vx;
-  body.x = Math.max(0, Math.min(world.w - body.w, body.x));
+  if (body.clamp !== false) body.x = Math.max(0, Math.min(world.w - body.w, body.x)); // los enemigos pueden salir de pantalla
   const prevBottom = body.y + body.h;
   body.vy += PHYSICS.gravity;
   body.y += body.vy;

@@ -35,6 +35,16 @@ export const SHOOTER_ANIM = {
   fps: 9,
 };
 
+// Alien saltador (fila 7 de la hoja de enemigos). Los frames miran a la izquierda.
+export const LEAPER_ANIM = {
+  sheet: 'alien',
+  native: -1,
+  run: ['6_2', '6_3', '6_4', '6_3'],
+  up: '6_0', // subiendo, alas arriba
+  glide: '6_1', // cayendo, alas abiertas
+  fps: 11,
+};
+
 export const TURRET_ANIM = {
   sheet: 'enemyRed',
   closed: '3_0',
