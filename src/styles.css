@@ -51,6 +51,22 @@ body,
   text-align: right;
   line-height: 1.4;
 }
+.hud-powers {
+  margin-top: 0.3cqw;
+  font-size: 1.4cqw;
+}
+.hud-powers .slot {
+  display: inline-block;
+  min-width: 7cqw;
+  margin-left: 0.6cqw;
+  padding: 0.2cqw 0.6cqw;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  text-align: center;
+}
+.hud-powers .slot.active {
+  border-color: #ff3c6e;
+  background: rgba(255, 60, 110, 0.35);
+}
 .hud-banner {
   position: absolute;
   left: 0;

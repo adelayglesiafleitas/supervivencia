@@ -110,6 +110,7 @@ export class Game {
   getHud() {
     return {
       state: this.state,
+      level: this.level.name,
       lives: this.lives,
       score: this.score,
       wave: this.waves.number,

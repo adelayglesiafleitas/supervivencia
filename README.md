@@ -73,7 +73,7 @@ src/
 4. Regístrala en `entities/enemies/index.js`.
 5. Úsala en `data/waves.js`.
 
-**Añadir un nivel.** Copia `data/levels/level01.js`, cambia plataformas y colores, y pásalo a `new Game({ level })`. Para encadenar niveles, el siguiente paso natural es que `Game` reciba una lista de niveles y pase al siguiente al acabar sus oleadas.
+**Añadir un nivel.** Copia `data/levels/level01.js`, cambia plataformas y colores, y por dónde entran los enemigos con `spawn.side` (`'right'`: avanzan de derecha a izquierda, `'left'`, `'both'`: entran por los dos lados y persiguen al jugador). El ritmo de aparición se ajusta en `data/waves.js`, y pásalo a `new Game({ level })`. Para encadenar niveles, el siguiente paso natural es que `Game` reciba una lista de niveles y pase al siguiente al acabar sus oleadas.
 
 **Cambiar controles.** `CONTROLS` en `config.js`. El juego pregunta por acciones (`jump`, `fire`), nunca por teclas.
 

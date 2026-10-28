@@ -15,6 +15,8 @@ export default function GameCanvas({ assets, gameRef, onHud, onGameOver }) {
     bus.on('gameover', (r) => callbacks.current.onGameOver(r));
     const game = new Game({ canvas: canvasRef.current, assets, bus });
     gameRef.current = game;
+    // Ayuda para depurar: abre la web con ?debug y tendrás window.__game en la consola.
+    if (import.meta.env.DEV || location.search.includes('debug')) window.__game = game;
     return () => {
       game.destroy();
       gameRef.current = null;

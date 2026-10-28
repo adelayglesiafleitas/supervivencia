@@ -5,9 +5,9 @@ export default function MainMenu({ onStart }) {
       <p className="sub">Sobrevive a las oleadas. Un solo escenario.</p>
       <button onClick={onStart}>Empezar (Enter)</button>
       <p className="controls">
-        A/D mover · W apuntar arriba · S agacharse · K/Espacio saltar
+        A/D mover · W apuntar arriba · S agacharse · K/Espacio saltar · S + salto: bajar de plataforma
         <br />
-        S + salto: bajar de plataforma · J/Z disparar
+        Clic izquierdo: disparar · Clic derecho: usar poder guardado (hasta 2)
       </p>
     </div>
   );
