@@ -24,7 +24,8 @@ export class Renderer {
   //   mode 'foot'   : anclado a los pies (parte baja de la caja del cuerpo)
   //   mode 'center' : anclado al centro de la caja
   // La entidad se voltea si mira a la izquierda (face < 0).
-  drawFrame(sheetName, frameName, body, mode = 'foot', fallbackColor = '#2e86de') {
+  // native: hacia dónde mira el frame tal cual está dibujado (1 = derecha, -1 = izquierda).
+  drawFrame(sheetName, frameName, body, mode = 'foot', fallbackColor = '#2e86de', native = 1) {
     const { ctx } = this;
     const sheet = this.assets.sheet(sheetName);
     const f = sheet?.frames[frameName];
@@ -37,11 +38,11 @@ export class Renderer {
     ctx.save();
     if (mode === 'center') {
       ctx.translate(body.x + body.w / 2, body.y + body.h / 2);
-      if (body.face < 0) ctx.scale(-1, 1);
+      if (body.face * native < 0) ctx.scale(-1, 1);
       ctx.drawImage(sheet.image, f.x, f.y, f.w, f.h, (-f.w * S) / 2, (-f.h * S) / 2, f.w * S, f.h * S);
     } else {
       ctx.translate(body.x + body.w / 2, body.y + body.h);
-      if (body.face < 0) ctx.scale(-1, 1);
+      if (body.face * native < 0) ctx.scale(-1, 1);
       ctx.drawImage(sheet.image, f.x, f.y, f.w, f.h, -f.ax * S, -f.h * S, f.w * S, f.h * S);
     }
     ctx.restore();

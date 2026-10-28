@@ -17,8 +17,10 @@ export const PLAYER_ANIM = {
   fps: { run: 12, jump: 14, dead: 7 },
 };
 
+// native: hacia dónde miran los frames tal cual vienen en la hoja (1 derecha, -1 izquierda).
 export const RUNNER_ANIM = {
   sheet: 'enemyRed',
+  native: -1,
   run: ['1_0', '1_1', '1_2', '1_3'],
   air: '1_3',
   fps: 12,
@@ -26,6 +28,7 @@ export const RUNNER_ANIM = {
 
 export const SHOOTER_ANIM = {
   sheet: 'enemyGreen',
+  runNative: -1, // los frames de correr miran a la izquierda
   run: ['1_0', '1_1', '1_2', '1_3'],
   stand: '2_3',
   shoot: '2_4',

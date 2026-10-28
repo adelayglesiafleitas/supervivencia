@@ -46,9 +46,11 @@ export class Shooter extends Enemy {
   }
 
   draw(renderer) {
-    let frame;
-    if (Math.abs(this.vx) > 0.1) frame = A.run[Math.floor(this.t * A.fps) % A.run.length];
-    else frame = this.shooting > 0 ? A.shoot : A.stand;
-    renderer.drawFrame(A.sheet, frame, this, 'foot', '#27ae60');
+    if (Math.abs(this.vx) > 0.1) {
+      const frame = A.run[Math.floor(this.t * A.fps) % A.run.length];
+      renderer.drawFrame(A.sheet, frame, this, 'foot', '#27ae60', A.runNative);
+    } else {
+      renderer.drawFrame(A.sheet, this.shooting > 0 ? A.shoot : A.stand, this, 'foot', '#27ae60');
+    }
   }
 }

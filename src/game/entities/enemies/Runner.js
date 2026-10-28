@@ -28,6 +28,6 @@ export class Runner extends Enemy {
 
   draw(renderer) {
     const frame = this.onGround ? A.run[Math.floor(this.t * A.fps) % A.run.length] : A.air;
-    renderer.drawFrame(A.sheet, frame, this, 'foot', '#c0392b');
+    renderer.drawFrame(A.sheet, frame, this, 'foot', '#c0392b', A.native);
   }
 }
