@@ -8,7 +8,7 @@ export class Assets {
     const entries = await Promise.all(
       Object.entries(manifest).map(async ([name, def]) => {
         const [image, frames] = await Promise.all([loadImage(def.image), loadJson(def.frames)]);
-        return [name, { image, frames, scale: def.scale }];
+        return [name, { image, frames, scale: def.scale, smooth: def.smooth }];
       }),
     );
     this.sheets = Object.fromEntries(entries);

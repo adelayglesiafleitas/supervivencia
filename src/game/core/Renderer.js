@@ -36,6 +36,7 @@ export class Renderer {
     }
     const S = sheet.scale ?? SPRITE_SCALE; // escala propia del atlas (si tiene más resolución)
     ctx.save();
+    ctx.imageSmoothingEnabled = sheet.smooth ?? this.smooth; // atlas de alta resolución: suavizado
     if (mode === 'center') {
       ctx.translate(body.x + body.w / 2, body.y + body.h / 2);
       if (body.face * native < 0) ctx.scale(-1, 1);
