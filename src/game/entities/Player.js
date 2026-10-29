@@ -183,7 +183,7 @@ export class Player extends Entity {
     // Si el sprite actual trae la punta del cañón, la bala sale de ahí.
     const sh = this.curSheet;
     const pf = sh?.frames[this.curFrame];
-    if (pf && pf.mx !== undefined && !this.prone && this.onGround) {
+    if (pf && pf.mx !== undefined && this.onGround) {
       gx = this.cx + this.face * (pf.mx - pf.ax) * sh.scale;
       gy = this.y + this.h + (pf.my - pf.h) * sh.scale;
     }
@@ -210,8 +210,36 @@ export class Player extends Entity {
     game.particles.burst(this.x + 13, this.y + 30, 14, '#ff5a3c');
   }
 
+  // Motion blur: estela de copias translúcidas de las últimas poses cuando va rápido.
+  drawTrail(renderer) {
+    const tr = (this.trail ??= []);
+    const cur = this.dead ? null : { x: this.x, y: this.y, w: this.w, h: this.h, face: this.face };
+    const speed = Math.hypot(this.vx, this.onGround ? 0 : this.vy);
+    const n = tr.length;
+    if (cur && speed > 1.5) {
+      const { ctx } = renderer;
+      for (let i = 0; i < n; i++) {
+        const g = tr[i];
+        if (Math.abs(g.x - cur.x) + Math.abs(g.y - cur.y) < 3) continue;
+        ctx.save();
+        ctx.globalAlpha = 0.07 + 0.07 * (i / n);
+        renderer.drawFrame(A.sheet, g.frame, g, g.mode);
+        ctx.restore();
+      }
+    }
+  }
+
+  pushTrail() {
+    const tr = (this.trail ??= []);
+    if (this.dead || !this.curFrame) return void (tr.length = 0);
+    tr.push({ x: this.x, y: this.y, w: this.w, h: this.h, face: this.face, frame: this.curFrame, mode: this.curMode });
+    if (tr.length > 5) tr.shift();
+  }
+
   draw(renderer) {
+    this.drawTrail(renderer);
     this.drawBody(renderer);
+    this.pushTrail();
     if (this.flash && !this.dead) this.drawFlash(renderer);
   }
 
@@ -250,6 +278,7 @@ export class Player extends Entity {
     if (this.inv > 0 && Math.floor(this.inv / 4) % 2 && !this.dead) return; // parpadeo
     const draw = (frame, mode = 'foot') => {
       this.curFrame = frame;
+      this.curMode = mode;
       this.curSheet = renderer.assets.sheet(A.sheet);
       return renderer.drawFrame(A.sheet, frame, this, mode);
     };

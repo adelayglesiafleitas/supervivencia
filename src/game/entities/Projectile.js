@@ -13,8 +13,21 @@ export class Projectile {
 
   draw(ctx) {
     if (this.team === 'player') {
-      ctx.fillStyle = '#ffe36b';
-      ctx.fillRect(this.x - 2, this.y - 2, 5, 5);
+      // bala diminuta con estela de motion blur en la dirección del movimiento
+      const tx = this.x - this.vx * 1.6;
+      const ty = this.y - this.vy * 1.6;
+      const g = ctx.createLinearGradient(tx, ty, this.x, this.y);
+      g.addColorStop(0, 'rgba(255,230,140,0)');
+      g.addColorStop(1, 'rgba(255,245,200,0.9)');
+      ctx.strokeStyle = g;
+      ctx.lineWidth = 1.5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(this.x, this.y);
+      ctx.stroke();
+      ctx.fillStyle = '#fffbe0';
+      ctx.fillRect(this.x - 0.75, this.y - 0.75, 1.5, 1.5);
     } else {
       ctx.fillStyle = '#ff5a5a';
       ctx.beginPath();

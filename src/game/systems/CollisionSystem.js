@@ -12,7 +12,7 @@ export class CollisionSystem {
       for (const e of enemies) {
         if (e.dead || b.life <= 0 || !pointInBox(b.x, b.y, e)) continue;
         b.life = 0;
-        particles.burst(b.x, b.y, 3, '#ffd34a');
+        particles.burst(b.x, b.y, 6, '#ffd34a');
         if (e.takeDamage(1)) {
           game.score += e.score;
           particles.burst(e.cx, e.y + e.h / 2, 12, '#ff7a3c');
