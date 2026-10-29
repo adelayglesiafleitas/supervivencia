@@ -53,8 +53,8 @@ export const LEAPER_ANIM = {
   fps: 11,
 };
 
-// Prueba: ciclo de referencia anatómica (6 poses). Solo aparece en el editor de animación.
-export const REF_RUN_ANIM = { sheet: 'refRun', run: seq('run', 6), fps: 10 };
+// Prueba: ciclo de referencia (14 poses, siluetas). Solo aparece en el editor de animación.
+export const REF_RUN_ANIM = { sheet: 'refRun', run: seq('run', 14), fps: 16 };
 
 export const TURRET_ANIM = {
   sheet: 'enemyRed',
@@ -78,7 +78,7 @@ export const ANIM_LIST = [
   { id: 'e_runner', label: 'Soldado: correr', group: 'Enemigos', sheet: RUNNER_ANIM.sheet, frames: RUNNER_ANIM.run, mode: 'foot', native: RUNNER_ANIM.native, get: () => RUNNER_ANIM.fps, set: (v) => (RUNNER_ANIM.fps = v) },
   { id: 'e_shooter', label: 'Tirador: correr', group: 'Enemigos', sheet: SHOOTER_ANIM.sheet, frames: SHOOTER_ANIM.run, mode: 'foot', native: SHOOTER_ANIM.runNative, get: () => SHOOTER_ANIM.fps, set: (v) => (SHOOTER_ANIM.fps = v) },
   { id: 'e_leaper', label: 'Alien: correr', group: 'Enemigos', sheet: LEAPER_ANIM.sheet, frames: LEAPER_ANIM.run, mode: 'foot', native: LEAPER_ANIM.native, get: () => LEAPER_ANIM.fps, set: (v) => (LEAPER_ANIM.fps = v) },
-  { id: 't_refrun', label: 'Referencia anatómica (prueba)', group: 'Pruebas', sheet: REF_RUN_ANIM.sheet, frames: REF_RUN_ANIM.run, mode: 'foot', native: 1, get: () => REF_RUN_ANIM.fps, set: (v) => (REF_RUN_ANIM.fps = v) },
+  { id: 't_refrun', label: 'Ciclo de 14 poses (prueba)', group: 'Pruebas', sheet: REF_RUN_ANIM.sheet, frames: REF_RUN_ANIM.run, mode: 'foot', native: 1, get: () => REF_RUN_ANIM.fps, set: (v) => (REF_RUN_ANIM.fps = v) },
 ];
 for (const a of ANIM_LIST) a.def = a.get();
 

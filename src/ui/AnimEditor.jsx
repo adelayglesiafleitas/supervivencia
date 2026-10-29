@@ -12,6 +12,7 @@ export default function AnimEditor({ assets, onClose }) {
   const [frame, setFrame] = useState(0);
   const [mirror, setMirror] = useState(false);
   const [pingpong, setPingpong] = useState(false);
+  const [light, setLight] = useState(false);
   const [, bump] = useState(0);
   const [msg, setMsg] = useState('');
   const canvasRef = useRef(null);
@@ -68,11 +69,11 @@ export default function AnimEditor({ assets, onClose }) {
     const ctx = cv.getContext('2d');
     const sheet = assets.sheet(anim.sheet);
     ctx.clearRect(0, 0, cv.width, cv.height);
-    ctx.fillStyle = '#16161e';
+    ctx.fillStyle = light ? '#d8dce6' : '#16161e';
     ctx.fillRect(0, 0, cv.width, cv.height);
     const gx = cv.width / 2;
     const gy = cv.height - 70;
-    ctx.strokeStyle = '#ffffff22';
+    ctx.strokeStyle = light ? '#00000033' : '#ffffff22';
     ctx.beginPath();
     ctx.moveTo(0, gy); ctx.lineTo(cv.width, gy);
     ctx.moveTo(gx, 0); ctx.lineTo(gx, cv.height);
@@ -96,7 +97,7 @@ export default function AnimEditor({ assets, onClose }) {
       ctx.drawImage(sheet.image, f.x, f.y, f.w, f.h, -f.ax * S, -f.h * S, f.w * S, f.h * S);
     }
     ctx.restore();
-  }, [assets, anim, frame, mirror]);
+  }, [assets, anim, frame, mirror, light]);
 
   const groups = [...new Set(ANIM_LIST.map((a) => a.group))];
   const sheet = assets.sheet(anim.sheet);
@@ -180,6 +181,7 @@ export default function AnimEditor({ assets, onClose }) {
             <button className="secondary" onClick={() => { setPlaying(false); setFrame((frame + 1) % n); }}>▶</button>
           </div>
           <label className="ed-check"><input type="checkbox" checked={pingpong} onChange={(e) => setPingpong(e.target.checked)} /> Ida y vuelta</label>
+          <label className="ed-check"><input type="checkbox" checked={light} onChange={(e) => setLight(e.target.checked)} /> Fondo claro</label>
           <label className="ed-check"><input type="checkbox" checked={mirror} onChange={(e) => setMirror(e.target.checked)} /> Mirar a la izquierda</label>
           <p className="ed-info small">Los cambios se guardan solos y valen en la partida.</p>
         </div>
