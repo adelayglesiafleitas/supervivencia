@@ -10,9 +10,9 @@ export const ASSET_MANIFEST = {
     smooth: true,
     scale: 0.25, // atlas de Drake a 4x respecto al tamaño de mundo (alta resolución)
   },
-  soldierTest: {
-    image: 'sprites/enemies/soldier_run.png',
-    frames: 'sprites/enemies/soldier_run.json',
+  refRun: {
+    image: 'sprites/test/ref_run.png',
+    frames: 'sprites/test/ref_run.json',
     smooth: true,
     scale: 0.25, // prueba: solo se ve en el editor de animación
   },
