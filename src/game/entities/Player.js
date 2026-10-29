@@ -237,7 +237,7 @@ export class Player extends Entity {
       const k = pSheet.scale;
       px = this.cx + this.face * (pf.mx - pf.ax) * k;
       py = this.y + this.h + (pf.my - pf.h) * k;
-      const up = this.curFrame.startsWith('fire_u') || this.curFrame.startsWith('run_u');
+      const up = this.curFrame.startsWith('fire_u') || this.curFrame.startsWith('run_u') || this.curFrame.startsWith('run_d');
       if (!up) ang = this.face > 0 ? 0 : Math.PI;
     }
     ctx.translate(px, py);
