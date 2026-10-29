@@ -10,13 +10,13 @@ export const PLAYER_ANIM = {
   idle: seq('idle', 6), // respirando
   stand: { up: 'fire_u_0', upd: 'run_u_0', downd: 'idle_0' }, // quieto apuntando arriba / en diagonal
   fire: { h: seq('fire_h', 4), up: seq('fire_u', 4) }, // disparo quieto (el 2º frame lleva el destello)
-  run: { h: seq('run_h', 8), up: seq('run_u', 12), upd: seq('run_u', 12), downd: seq('run_h', 8) },
+  run: { h: seq('run_h', 5), up: seq('run_u', 12), upd: seq('run_u', 12), downd: seq('run_h', 5) },
   jump: seq('jump', 10), // voltereta (anclada al centro)
   jumpFallStart: 7, // si cae sin saltar, empieza ya con el cuerpo abriéndose
   prone: seq('prone', 4),
   dead: seq('dead', 10),
   // Correr va ligado a la distancia: runFps = fotogramas por segundo a velocidad máxima.
-  runFps: { h: 14, u: 24 },
+  runFps: { h: 10, u: 24 },
   fireFps: 24, // disparo quieto
   fps: { idle: 8, jump: 24, dead: 24, prone: 4 },
   // unidades de mundo que recorre un ciclo completo (12 frames) a ese ritmo
