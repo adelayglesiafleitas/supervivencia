@@ -41,6 +41,7 @@ export class Player extends Entity {
     this.airT = 0;
     this.airOff = 0;
     this.runPhase = 0;
+    this.fireT = 99;
     this.aim = { x: 1, y: 0 };
     this.firing = 0;
   }
@@ -69,6 +70,7 @@ export class Player extends Entity {
     this.airT = 0;
     this.airOff = 0;
     this.runPhase = 0;
+    this.fireT = 99;
   }
 
   // Guarda un poder si hay hueco. Devuelve true si lo cogió.
@@ -147,10 +149,11 @@ export class Player extends Entity {
     }
 
     this.t += 1 / 60;
+    this.fireT += 1 / 60;
     if (this.onGround) {
       this.airT = 0;
       this.airOff = 0;
-      this.runPhase = (this.runPhase + Math.abs(this.vx) / A.runStride) % 1;
+      this.runPhase = (this.runPhase + Math.abs(this.vx) / A.runStride(this.aim.y < -0.1 ? 'u' : 'h')) % 1;
     } else {
       if (this.airT === 0) this.airOff = this.vy < -1 ? 0 : A.jumpFallStart;
       this.airT += 1 / 60;
@@ -183,6 +186,7 @@ export class Player extends Entity {
     }
     this.cd = weapon.cooldown;
     this.firing = 6;
+    this.fireT = 0;
   }
 
   hurt(game, force = false) {
@@ -209,7 +213,8 @@ export class Player extends Entity {
     if (Math.abs(this.vx) > 0.1) return draw(A.run[cls][Math.floor(this.runPhase * A.run[cls].length) % A.run[cls].length]);
     const fire = A.fire[cls];
     if (fire) {
-      if (this.firing > 0) return draw(fire[Math.min(fire.length - 1, Math.floor((6 - this.firing) / 2.5) + 1)]);
+      const i = Math.floor(this.fireT * A.fireFps);
+      if (i < fire.length) return draw(fire[i]);
       if (cls === 'up') return draw(fire[0]);
     }
     if (cls === 'h') return draw(pick(A.idle, this.t, A.fps.idle));
