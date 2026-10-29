@@ -13,8 +13,8 @@ export const PLAYER_ANIM = {
   jumpFallStart: 7, // si cae sin saltar, empieza ya con el cuerpo abriéndose
   prone: seq('prone', 4),
   dead: seq('dead', 10),
-  runStride: 62, // unidades de mundo que recorre un ciclo completo de 12 frames
-  fps: { idle: 7, jump: 14, dead: 14, prone: 4 },
+  runStride: 102, // unidades de mundo por ciclo de 12 frames: a velocidad máxima da 24 fotogramas por segundo
+  fps: { idle: 8, jump: 24, dead: 24, prone: 4 },
 };
 
 // native: hacia dónde miran los frames tal cual vienen en la hoja (1 derecha, -1 izquierda).

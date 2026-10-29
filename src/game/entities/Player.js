@@ -209,7 +209,7 @@ export class Player extends Entity {
     if (Math.abs(this.vx) > 0.1) return draw(A.run[cls][Math.floor(this.runPhase * A.run[cls].length) % A.run[cls].length]);
     const fire = A.fire[cls];
     if (fire) {
-      if (this.firing > 0) return draw(fire[Math.min(fire.length - 1, Math.floor((6 - this.firing) / 2) + 1)]);
+      if (this.firing > 0) return draw(fire[Math.min(fire.length - 1, Math.floor((6 - this.firing) / 2.5) + 1)]);
       if (cls === 'up') return draw(fire[0]);
     }
     if (cls === 'h') return draw(pick(A.idle, this.t, A.fps.idle));
