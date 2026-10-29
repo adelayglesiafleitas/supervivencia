@@ -2,7 +2,7 @@ import { Entity } from './Entity.js';
 import { Projectile } from './Projectile.js';
 import { moveBody, setHeight } from '../core/physics.js';
 import { PHYSICS, PLAYER, WEAPONS } from '../config.js';
-import { PLAYER_ANIM as A } from '../data/animations.js';
+import { PLAYER_ANIM as A, FLASH_ANIM as FX } from '../data/animations.js';
 
 const pick = (list, t, fps) => list[Math.floor(t * fps) % list.length];
 
@@ -44,6 +44,7 @@ export class Player extends Entity {
     this.fireT = 99;
     this.aim = { x: 1, y: 0 };
     this.firing = 0;
+    this.flash = null; // fogonazo activo { t, dx, dy, ang, shape }
   }
 
   // En niveles con scroll reaparece sobre una plataforma de la pantalla actual.
@@ -143,6 +144,7 @@ export class Player extends Entity {
 
     this.cd--;
     if (this.firing > 0) this.firing--;
+    if (this.flash && ++this.flash.t >= FX.ticks) this.flash = null;
     if (this.cd <= 0) {
       if (input.isDown('power') && this.powers.length) this.usePower(game);
       else if (input.isDown('fire')) this.shoot(game, 'normal');
@@ -187,6 +189,7 @@ export class Player extends Entity {
     this.cd = weapon.cooldown;
     this.firing = 6;
     this.fireT = 0;
+    this.flash = { t: 0, dx: gx - this.cx, dy: gy - this.y, ang: base, shape: Math.floor(Math.random() * FX.first.length) };
   }
 
   hurt(game, force = false) {
@@ -201,8 +204,47 @@ export class Player extends Entity {
   }
 
   draw(renderer) {
+    this.drawBody(renderer);
+    if (this.flash && !this.dead) this.drawFlash(renderer);
+  }
+
+  // Fogonazo: una forma al azar, luego una más pequeña y otra casi apagada. Mezcla aditiva.
+  drawFlash(renderer) {
+    const sheet = renderer.assets.sheet(FX.sheet);
+    const fl = this.flash;
+    const name = fl.t < 3 ? FX.first[fl.shape] : fl.t < 5 ? FX.mid : FX.last;
+    const f = sheet?.frames[name];
+    if (!f) return;
+    const S = sheet.scale;
+    const { ctx } = renderer;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.imageSmoothingEnabled = true;
+    // Posición: la punta del cañón del frame que se está dibujando (si el atlas la trae).
+    const pSheet = renderer.assets.sheet(A.sheet);
+    const pf = pSheet?.frames[this.curFrame];
+    let px = this.cx + fl.dx;
+    let py = this.y + fl.dy;
+    let ang = fl.ang;
+    if (pf && pf.mx !== undefined) {
+      const k = pSheet.scale;
+      px = this.cx + this.face * (pf.mx - pf.ax) * k;
+      py = this.y + this.h + (pf.my - pf.h) * k;
+      const up = this.curFrame.startsWith('fire_u') || this.curFrame.startsWith('run_u');
+      if (!up) ang = this.face > 0 ? 0 : Math.PI;
+    }
+    ctx.translate(px, py);
+    ctx.rotate(ang);
+    ctx.drawImage(sheet.image, f.x, f.y, f.w, f.h, -f.ax * S, -f.ay * S, f.w * S, f.h * S);
+    ctx.restore();
+  }
+
+  drawBody(renderer) {
     if (this.inv > 0 && Math.floor(this.inv / 4) % 2 && !this.dead) return; // parpadeo
-    const draw = (frame, mode = 'foot') => renderer.drawFrame(A.sheet, frame, this, mode);
+    const draw = (frame, mode = 'foot') => {
+      this.curFrame = frame;
+      return renderer.drawFrame(A.sheet, frame, this, mode);
+    };
     const last = (list, i) => list[Math.max(0, Math.min(list.length - 1, i))];
 
     if (this.dead) return draw(last(A.dead, Math.floor(this.t * A.fps.dead)));
