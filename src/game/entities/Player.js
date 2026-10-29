@@ -38,6 +38,9 @@ export class Player extends Entity {
     this.powers = []; // poderes guardados: [{ kind, ammo }], el primero es el que se usa
     this.jumpHeld = false;
     this.t = 0;
+    this.airT = 0;
+    this.airOff = 0;
+    this.runPhase = 0;
     this.aim = { x: 1, y: 0 };
     this.firing = 0;
   }
@@ -63,6 +66,9 @@ export class Player extends Entity {
     this.inv = PLAYER.respawnInvincibility;
     this.prone = false;
     this.t = 0;
+    this.airT = 0;
+    this.airOff = 0;
+    this.runPhase = 0;
   }
 
   // Guarda un poder si hay hueco. Devuelve true si lo cogió.
@@ -141,6 +147,14 @@ export class Player extends Entity {
     }
 
     this.t += 1 / 60;
+    if (this.onGround) {
+      this.airT = 0;
+      this.airOff = 0;
+      this.runPhase = (this.runPhase + Math.abs(this.vx) / A.runStride) % 1;
+    } else {
+      if (this.airT === 0) this.airOff = this.vy < -1 ? 0 : A.jumpFallStart;
+      this.airT += 1 / 60;
+    }
   }
 
   // No puede salir por la izquierda de la cámara ni por el final del nivel.
@@ -185,15 +199,20 @@ export class Player extends Entity {
   draw(renderer) {
     if (this.inv > 0 && Math.floor(this.inv / 4) % 2 && !this.dead) return; // parpadeo
     const draw = (frame, mode = 'foot') => renderer.drawFrame(A.sheet, frame, this, mode);
+    const last = (list, i) => list[Math.max(0, Math.min(list.length - 1, i))];
 
-    if (this.dead) return draw(A.dead[Math.min(A.dead.length - 1, Math.floor(this.t * A.fps.dead))]);
-    if (!this.onGround) return draw(pick(A.jump, this.t, A.fps.jump), 'center');
-    if (this.prone) return draw(A.prone[0]);
+    if (this.dead) return draw(last(A.dead, Math.floor(this.t * A.fps.dead)));
+    if (!this.onGround) return draw(last(A.jump, Math.floor(this.airT * A.fps.jump) + this.airOff), 'center');
+    if (this.prone) return draw(pick(A.prone, this.t, A.fps.prone));
 
     const cls = aimClass(this.aim);
-    if (Math.abs(this.vx) > 0.1) return draw(pick(A.run[cls], this.t, A.fps.run));
-    let frame = A.stand[cls][0];
-    if (this.firing > 0 && A.standFire[cls]) frame = A.standFire[cls];
-    return draw(frame);
+    if (Math.abs(this.vx) > 0.1) return draw(A.run[cls][Math.floor(this.runPhase * A.run[cls].length) % A.run[cls].length]);
+    const fire = A.fire[cls];
+    if (fire) {
+      if (this.firing > 0) return draw(fire[Math.min(fire.length - 1, Math.floor((6 - this.firing) / 2) + 1)]);
+      if (cls === 'up') return draw(fire[0]);
+    }
+    if (cls === 'h') return draw(pick(A.idle, this.t, A.fps.idle));
+    return draw(A.stand[cls]);
   }
 }

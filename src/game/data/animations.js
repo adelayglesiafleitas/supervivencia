@@ -1,20 +1,20 @@
 // Qué frames del atlas usa cada acción. Los nombres de frame ("fila_columna")
 // vienen de las hojas originales. Todas las poses miran a la derecha; el motor las voltea.
 
+const seq = (name, n) => Array.from({ length: n }, (_, i) => `${name}_${i}`);
+
 export const PLAYER_ANIM = {
   sheet: 'player',
-  stand: { h: ['0_4'], up: ['0_6'], upd: ['1_4'], downd: ['2_4'] },
-  standFire: { h: '0_5', up: '0_7' }, // destello al disparar quieto
-  run: {
-    h: ['3_5', '3_6', '3_7', '3_6'],
-    up: ['3_8', '3_9'],
-    upd: ['1_3', '1_4', '1_5', '1_4'],
-    downd: ['2_3', '2_4', '2_5', '2_4'],
-  },
-  jump: ['4_6', '4_7', '4_8', '4_9'], // voltereta (anclada al centro)
-  prone: ['4_5'],
-  dead: ['5_5', '5_6', '5_7', '5_8', '5_9'],
-  fps: { run: 12, jump: 14, dead: 7 },
+  idle: seq('idle', 6), // respirando
+  stand: { up: 'fire_u_0', upd: 'run_u_0', downd: 'idle_0' }, // quieto apuntando arriba / en diagonal
+  fire: { h: seq('fire_h', 4), up: seq('fire_u', 4) }, // disparo quieto (el 2º frame lleva el destello)
+  run: { h: seq('run_h', 12), up: seq('run_u', 12), upd: seq('run_u', 12), downd: seq('run_h', 12) },
+  jump: seq('jump', 10), // voltereta (anclada al centro)
+  jumpFallStart: 7, // si cae sin saltar, empieza ya con el cuerpo abriéndose
+  prone: seq('prone', 4),
+  dead: seq('dead', 10),
+  runStride: 62, // unidades de mundo que recorre un ciclo completo de 12 frames
+  fps: { idle: 7, jump: 14, dead: 14, prone: 4 },
 };
 
 // native: hacia dónde miran los frames tal cual vienen en la hoja (1 derecha, -1 izquierda).

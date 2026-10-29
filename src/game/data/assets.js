@@ -8,7 +8,7 @@ export const ASSET_MANIFEST = {
     image: 'sprites/player/atlas.png',
     frames: 'sprites/player/frames.json',
     smooth: true,
-    scale: 0.5, // atlas de Drake a 4x: 0.5 deja el mismo tamaño en pantalla que el original a 2
+    scale: 0.25, // atlas de Drake a 4x respecto al tamaño de mundo (alta resolución)
   },
   enemyRed: {
     image: 'sprites/enemies/atlas_red.png',
