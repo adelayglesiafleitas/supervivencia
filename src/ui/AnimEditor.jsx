@@ -139,10 +139,11 @@ export default function AnimEditor({ assets, onClose }) {
           <div className="ed-strip">
             {anim.frames.map((fn, i) => {
               const f = sheet.frames[fn];
+              if (!f) return null;
               const k = 56 / Math.max(f.w, f.h);
               return (
                 <button
-                  key={fn}
+                  key={i + '-' + fn}
                   className={'ed-thumb' + (i === frame ? ' on' : '')}
                   onClick={() => { setPlaying(false); setFrame(i); }}
                   title={fn}
