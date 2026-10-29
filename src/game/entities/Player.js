@@ -210,7 +210,10 @@ export class Player extends Entity {
     if (this.prone) return draw(pick(A.prone, this.t, A.fps.prone));
 
     const cls = aimClass(this.aim);
-    if (Math.abs(this.vx) > 0.1) return draw(A.run[cls][Math.floor(this.runPhase * A.run[cls].length) % A.run[cls].length]);
+    if (Math.abs(this.vx) > 0.1) {
+      const list = cls === 'h' && this.fireT < A.fireHold ? A.runFire : A.run[cls];
+      return draw(list[Math.floor(this.runPhase * list.length) % list.length]);
+    }
     const fire = A.fire[cls];
     if (fire) {
       const i = Math.floor(this.fireT * A.fireFps);

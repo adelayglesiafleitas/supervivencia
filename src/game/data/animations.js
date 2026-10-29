@@ -11,6 +11,8 @@ export const PLAYER_ANIM = {
   stand: { up: 'fire_u_0', upd: 'run_u_0', downd: 'idle_0' }, // quieto apuntando arriba / en diagonal
   fire: { h: seq('fire_h', 4), up: seq('fire_u', 4) }, // disparo quieto (el 2º frame lleva el destello)
   run: { h: seq('run_h', 5), up: seq('run_u', 5), upd: seq('run_u', 5), downd: seq('run_h', 5) },
+  runFire: seq('run_f', 5), // correr disparando (mismo ciclo que run.h, arma al frente con destello)
+  fireHold: 0.3, // segundos que se ve la pose de disparo tras cada tiro
   jump: seq('jump', 10), // voltereta (anclada al centro)
   jumpFallStart: 7, // si cae sin saltar, empieza ya con el cuerpo abriéndose
   prone: seq('prone', 4),
