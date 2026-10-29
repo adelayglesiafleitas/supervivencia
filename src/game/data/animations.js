@@ -10,13 +10,13 @@ export const PLAYER_ANIM = {
   idle: seq('idle', 6), // respirando
   stand: { up: 'fire_u_0', upd: 'run_u_0', downd: 'idle_0' }, // quieto apuntando arriba / en diagonal
   fire: { h: seq('fire_h', 4), up: seq('fire_u', 4) }, // disparo quieto (el 2º frame lleva el destello)
-  run: { h: seq('run_h', 12), up: seq('run_u', 12), upd: seq('run_u', 12), downd: seq('run_h', 12) },
+  run: { h: seq('run_h', 8), up: seq('run_u', 12), upd: seq('run_u', 12), downd: seq('run_h', 8) },
   jump: seq('jump', 10), // voltereta (anclada al centro)
   jumpFallStart: 7, // si cae sin saltar, empieza ya con el cuerpo abriéndose
   prone: seq('prone', 4),
   dead: seq('dead', 10),
   // Correr va ligado a la distancia: runFps = fotogramas por segundo a velocidad máxima.
-  runFps: { h: 24, u: 24 },
+  runFps: { h: 14, u: 24 },
   fireFps: 24, // disparo quieto
   fps: { idle: 8, jump: 24, dead: 24, prone: 4 },
   // unidades de mundo que recorre un ciclo completo (12 frames) a ese ritmo
@@ -53,6 +53,9 @@ export const LEAPER_ANIM = {
   fps: 11,
 };
 
+// Prueba: soldado de camuflaje (8 frames). Solo aparece en el editor de animación, no se usa en el juego.
+export const SOLDIER_TEST_ANIM = { sheet: 'soldierTest', run: seq('run', 8), fps: 12 };
+
 export const TURRET_ANIM = {
   sheet: 'enemyRed',
   closed: '3_0',
@@ -75,6 +78,7 @@ export const ANIM_LIST = [
   { id: 'e_runner', label: 'Soldado: correr', group: 'Enemigos', sheet: RUNNER_ANIM.sheet, frames: RUNNER_ANIM.run, mode: 'foot', native: RUNNER_ANIM.native, get: () => RUNNER_ANIM.fps, set: (v) => (RUNNER_ANIM.fps = v) },
   { id: 'e_shooter', label: 'Tirador: correr', group: 'Enemigos', sheet: SHOOTER_ANIM.sheet, frames: SHOOTER_ANIM.run, mode: 'foot', native: SHOOTER_ANIM.runNative, get: () => SHOOTER_ANIM.fps, set: (v) => (SHOOTER_ANIM.fps = v) },
   { id: 'e_leaper', label: 'Alien: correr', group: 'Enemigos', sheet: LEAPER_ANIM.sheet, frames: LEAPER_ANIM.run, mode: 'foot', native: LEAPER_ANIM.native, get: () => LEAPER_ANIM.fps, set: (v) => (LEAPER_ANIM.fps = v) },
+  { id: 't_soldier', label: 'Soldado camuflaje (prueba)', group: 'Pruebas', sheet: SOLDIER_TEST_ANIM.sheet, frames: SOLDIER_TEST_ANIM.run, mode: 'foot', native: 1, get: () => SOLDIER_TEST_ANIM.fps, set: (v) => (SOLDIER_TEST_ANIM.fps = v) },
 ];
 for (const a of ANIM_LIST) a.def = a.get();
 
