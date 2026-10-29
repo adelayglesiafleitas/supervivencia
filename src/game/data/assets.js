@@ -10,6 +10,12 @@ export const ASSET_MANIFEST = {
     smooth: true,
     scale: 0.25, // atlas de Drake a 4x respecto al tamaño de mundo (alta resolución)
   },
+  fx: {
+    image: 'sprites/fx/flash.png', // fogonazos de la boca del arma (se dibujan con mezcla aditiva)
+    frames: 'sprites/fx/frames.json',
+    smooth: true,
+    scale: 0.09,
+  },
   enemyRed: {
     image: 'sprites/enemies/atlas_red.png',
     frames: 'sprites/enemies/frames.json',

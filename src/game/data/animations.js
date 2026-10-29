@@ -5,6 +5,8 @@ import { PHYSICS } from '../config.js';
 
 const seq = (name, n) => Array.from({ length: n }, (_, i) => `${name}_${i}`);
 
+export const FLASH_ANIM = { sheet: 'fx', first: ['fx_0', 'fx_1', 'fx_2', 'fx_3'], mid: 'fx_4', last: 'fx_5', ticks: 7 }; // fogonazo del arma
+
 export const PLAYER_ANIM = {
   sheet: 'player',
   idle: seq('idle', 6), // respirando

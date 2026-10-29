@@ -178,8 +178,15 @@ export class Player extends Entity {
     const weapon = WEAPONS[weaponKey];
     const a = this.aim;
     const cy = this.y + (this.prone ? this.h * 0.4 : this.h * 0.36);
-    const gx = this.cx + a.x * PLAYER.muzzleOffset;
-    const gy = cy + a.y * PLAYER.muzzleOffset;
+    let gx = this.cx + a.x * PLAYER.muzzleOffset;
+    let gy = cy + a.y * PLAYER.muzzleOffset;
+    // Si el sprite actual trae la punta del cañón, la bala sale de ahí.
+    const sh = this.curSheet;
+    const pf = sh?.frames[this.curFrame];
+    if (pf && pf.mx !== undefined && !this.prone && this.onGround) {
+      gx = this.cx + this.face * (pf.mx - pf.ax) * sh.scale;
+      gy = this.y + this.h + (pf.my - pf.h) * sh.scale;
+    }
     const base = Math.atan2(a.y, a.x);
     for (const o of weapon.angles) {
       game.projectiles.push(
@@ -243,6 +250,7 @@ export class Player extends Entity {
     if (this.inv > 0 && Math.floor(this.inv / 4) % 2 && !this.dead) return; // parpadeo
     const draw = (frame, mode = 'foot') => {
       this.curFrame = frame;
+      this.curSheet = renderer.assets.sheet(A.sheet);
       return renderer.drawFrame(A.sheet, frame, this, mode);
     };
     const last = (list, i) => list[Math.max(0, Math.min(list.length - 1, i))];
