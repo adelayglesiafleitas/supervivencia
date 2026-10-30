@@ -16,6 +16,12 @@ export const ASSET_MANIFEST = {
     smooth: true,
     scale: 0.09,
   },
+  capsules: {
+    image: 'sprites/level/capsules.png', // cápsulas voladoras de armas (S, M, L, F, R; 4 frames cada una)
+    frames: 'sprites/level/capsules.json',
+    smooth: true,
+    scale: 0.5,
+  },
   enemyRed: {
     image: 'sprites/enemies/atlas_red.png',
     frames: 'sprites/enemies/frames_red.json',

@@ -1,6 +1,8 @@
 import { Entity } from './Entity.js';
 import { PHYSICS } from '../config.js';
 
+const LETTERS = { spread: 'S' }; // arma -> letra de la cápsula
+
 // Objeto que cae al morir un enemigo. Por ahora solo existe el arma "spread".
 export class Pickup extends Entity {
   constructor(x, y, kind = 'spread') {
@@ -28,6 +30,13 @@ export class Pickup extends Entity {
 
   draw(renderer) {
     const { ctx } = renderer;
+    const letter = LETTERS[this.kind] ?? 'S';
+    const frame = `cap_${letter}_${Math.floor(performance.now() / 120) % 4}`;
+    if (renderer.assets.sheet('capsules')?.frames[frame]) {
+      // el sprite es más grande que la caja de colisión: se dibuja centrado
+      renderer.drawFrame('capsules', frame, { ...this, face: 1 }, 'foot');
+      return;
+    }
     ctx.fillStyle = '#ff3c6e';
     ctx.fillRect(this.x, this.y, this.w, this.h);
     ctx.fillStyle = '#fff';
