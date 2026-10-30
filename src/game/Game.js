@@ -30,6 +30,7 @@ export class Game {
     this.particles = new Particles();
     this.music = new Music();
     this.loop = new Loop({ stepMs: STEP_MS, update: () => this.update(), render: () => this.render() });
+    if (import.meta.env.DEV) window.__game = this; // solo para depurar
     this.state = 'idle'; // 'idle' | 'playing' | 'over'
     this.resetWorld();
     this.render(); // pinta el escenario vacío (menú)

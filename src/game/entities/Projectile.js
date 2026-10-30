@@ -29,9 +29,22 @@ export class Projectile {
       ctx.fillStyle = '#fffbe0';
       ctx.fillRect(this.x - 0.75, this.y - 0.75, 1.5, 1.5);
     } else {
-      ctx.fillStyle = '#ff5a5a';
+      // bala enemiga con estela de motion blur
+      const tx = this.x - this.vx * 3.2;
+      const ty = this.y - this.vy * 3.2;
+      const g = ctx.createLinearGradient(tx, ty, this.x, this.y);
+      g.addColorStop(0, 'rgba(255,90,90,0)');
+      g.addColorStop(1, 'rgba(255,120,100,0.85)');
+      ctx.strokeStyle = g;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.arc(this.x, this.y, 4, 0, Math.PI * 2);
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(this.x, this.y);
+      ctx.stroke();
+      ctx.fillStyle = '#ffd0c0';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 2.2, 0, Math.PI * 2);
       ctx.fill();
     }
   }
