@@ -1,3 +1,4 @@
+import { JUNGLE1_WATER } from './jungle1_water.js';
 // Nivel 1 (jungla). El mapa es una imagen; las plataformas (hierba y puentes) se detectaron
 // del propio mapa y están en unidades del mundo (1 px del mapa = 2.25 unidades).
 // Para ajustar una plataforma, edita su x / y / w. Abre el juego con ?plat para verlas dibujadas.
@@ -12,6 +13,7 @@ export const jungle1 = {
   groundY: Infinity,
   killY: 540 + 60, // caer al agua = morir
   goalX: 3200 * K, // al llegar a la puerta final se completa el nivel
+  water: JUNGLE1_WATER, // se puede nadar: superficie por columna
   playerStart: { x: 150, y: 100 },
   spawn: { side: 'right' },
   background: {

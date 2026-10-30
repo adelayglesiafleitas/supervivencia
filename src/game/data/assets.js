@@ -22,6 +22,7 @@ export const ASSET_MANIFEST = {
     smooth: true,
     scale: 0.5,
   },
+  swim: { image: 'sprites/swim/atlas.png', frames: 'sprites/swim/frames.json', smooth: true, scale: 0.32 },
   turret: { image: 'sprites/level/turret.png', frames: 'sprites/level/turret.json', smooth: true, scale: 0.5 },
   sensor: { image: 'sprites/level/sensor.png', frames: 'sprites/level/sensor.json', smooth: true, scale: 0.5 },
   bridge: { image: 'sprites/level/bridge.png', frames: 'sprites/level/bridge.json', smooth: true, scale: 0.497 },

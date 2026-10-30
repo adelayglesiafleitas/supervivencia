@@ -75,6 +75,14 @@ export class Game {
     this.bus.clear();
   }
 
+  // Superficie del agua en esa X (unidades del mundo) o null si ahí no hay agua en este nivel.
+  waterTop(cx) {
+    const w = this.level.water;
+    if (!w) return null;
+    const v = w.top[Math.floor(cx / w.k)];
+    return v > 0 ? v : null;
+  }
+
   // La cámara sigue al jugador hacia la derecha y nunca retrocede (como en Contra).
   updateCamera() {
     const { level, world, player, camera } = this;
