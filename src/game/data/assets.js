@@ -35,7 +35,7 @@ export const ASSET_MANIFEST = {
     scale: 0.5,
   },
   jungle: {
-    image: 'maps/jungle1.png', // mapa del nivel 1 (sin frames: se dibuja entero como fondo)
+    image: 'maps/jungle1_art.webp', // mapa del nivel 1 (sin frames: se dibuja entero como fondo)
   },
   enemyGreen: {
     image: 'sprites/enemies/atlas_green.png',
