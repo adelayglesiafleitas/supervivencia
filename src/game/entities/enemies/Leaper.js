@@ -8,13 +8,13 @@ import { LEAPER_ANIM as A } from '../../data/animations.js';
 // distancia), camina hasta el borde correcto, salta y se dirige al punto de aterrizaje.
 // Si no hay forma segura de acercarse, se queda esperando al borde en vez de tirarse al agua.
 export class Leaper extends Enemy {
-  constructor(game) {
-    super('leaper');
+  constructor(game, type = 'leaper') {
+    super(type);
     const { side, x, y } = Enemy.pickSide(game, this.h);
     this.x = x;
     this.y = y;
     this.face = -side;
-    this.speed = this.stats.speed + game.waves.number * 0.04;
+    this.speed = (this.stats.speed ?? 2) + game.waves.number * 0.04;
     this.jumpCd = 30;
     this.landX = null; // X donde quiere aterrizar mientras está en el aire
     this.plan = null; // { pl, lx, jump } plataforma objetivo, punto de aterrizaje y si hay que saltar
