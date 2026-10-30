@@ -83,6 +83,14 @@ export class Game {
     return v > 0 ? v : null;
   }
 
+  // Línea por la que se nada en esa X (siempre la de la base de los acantilados) o null.
+  swimLine(cx) {
+    const w = this.level.water;
+    if (!w) return null;
+    const v = w.swim[Math.floor(cx / w.k)];
+    return v > 0 ? v : null;
+  }
+
   // La cámara sigue al jugador hacia la derecha y nunca retrocede (como en Contra).
   updateCamera() {
     const { level, world, player, camera } = this;

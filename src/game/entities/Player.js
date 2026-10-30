@@ -114,7 +114,8 @@ export class Player extends Entity {
     // caer al agua: nada en la superficie (si no hay una plataforma debajo donde aterrizar)
     if (!this.swimming && !this.onGround && this.vy > 0) {
       const wt = game.waterTop(this.cx);
-      if (wt !== null && this.y + this.h > wt + 6 && !this.platformBelow(game)) this.enterWater(game, wt);
+      const sl = game.swimLine(this.cx);
+      if (wt !== null && sl !== null && this.y + this.h > wt + 6 && !this.platformBelow(game)) this.enterWater(game, wt);
     }
     if (this.swimming) return this.updateSwim(game, { ax, u, d, jump });
 
@@ -198,7 +199,7 @@ export class Player extends Entity {
   // Nadar: flota en la superficie, se mueve más despacio, apunta recto/arriba/diagonal arriba y puede bucear.
   updateSwim(game, { ax, u, d, jump }) {
     const { input } = game;
-    const wt = game.waterTop(this.cx) ?? game.waterTop(this.cx - 20) ?? this.y + this.h;
+    const wt = game.swimLine(this.cx) ?? game.swimLine(this.cx - 20) ?? this.y + this.h;
     this.t += 1 / 60;
     this.fireT += 1 / 60;
     this.inT++;
@@ -220,7 +221,7 @@ export class Player extends Entity {
 
     this.vx = ax * PHYSICS.runSpeed * (this.diving ? 0.4 : 0.62);
     // puede nadar por delante de la base de los acantilados (la superficie baja ahí); sin agua, no avanza
-    if (this.vx && game.waterTop(this.cx + this.vx * 4) === null) this.vx = 0;
+    if (this.vx && game.swimLine(this.cx + this.vx * 4) === null) this.vx = 0;
     this.x += this.vx;
     this.limitToLevel(game);
     const ty = wt + 2 - this.h;
