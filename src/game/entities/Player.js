@@ -219,13 +219,12 @@ export class Player extends Entity {
     }
 
     this.vx = ax * PHYSICS.runSpeed * (this.diving ? 0.4 : 0.62);
-    // las paredes del acantilado (el agua sube mucho) bloquean el paso
-    const wn = game.waterTop(this.cx + this.vx * 4);
-    if (this.vx && (wn === null || wn > wt + 40)) this.vx = 0;
+    // puede nadar por delante de la base de los acantilados (la superficie baja ahí); sin agua, no avanza
+    if (this.vx && game.waterTop(this.cx + this.vx * 4) === null) this.vx = 0;
     this.x += this.vx;
     this.limitToLevel(game);
     const ty = wt + 2 - this.h;
-    this.y += Math.max(-3, Math.min(3, ty - this.y));
+    this.y += Math.max(-4, Math.min(4, ty - this.y));
     this.vy = 0;
     this.onGround = false;
 
