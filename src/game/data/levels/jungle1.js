@@ -19,7 +19,7 @@ export const jungle1 = {
     // capas detrás del mapa: factor = cuánto se mueven respecto a la cámara (0 = fijo)
     layers: [
       { image: 'mountains', factor: 0.1, scale: 0.497, bottom: 540, mirror: true },
-      { image: 'forest', factor: 0.35, scale: 0.62, bottom: 570, mirror: false },
+      { image: 'forest', factor: 0.35, scale: 0.62, bottom: 389, mirror: false },
     ],
   },
   style: { ground: '#2b2b35', platform: '#4a4a58', edge: '#7a7a8c' },

@@ -27,7 +27,7 @@ export const ASSET_MANIFEST = {
   bridge: { image: 'sprites/level/bridge.png', frames: 'sprites/level/bridge.json', smooth: true, scale: 0.497 },
   gate: { image: 'sprites/level/gate.png' },
   mountains: { image: 'sprites/level/bg_mountains.jpg' },
-  forest: { image: 'sprites/level/bg_forest.png' },
+  forest: { image: 'sprites/level/bg_forest_top.png' },
   enemyRed: {
     image: 'sprites/enemies/atlas_red.png',
     frames: 'sprites/enemies/frames_red.json',
