@@ -2,6 +2,7 @@ import { CONTROLS, PLAYER, RENDER, STEP_MS, WORLD } from './config.js';
 import { EventBus } from './core/EventBus.js';
 import { Input } from './core/Input.js';
 import { Loop } from './core/Loop.js';
+import { Music } from './core/Music.js';
 import { Renderer } from './core/Renderer.js';
 import { LEVELS } from './data/levels/index.js';
 import { Player } from './entities/Player.js';
@@ -27,6 +28,7 @@ export class Game {
     this.waves = new WaveSystem();
     this.collisions = new CollisionSystem();
     this.particles = new Particles();
+    this.music = new Music();
     this.loop = new Loop({ stepMs: STEP_MS, update: () => this.update(), render: () => this.render() });
     this.state = 'idle'; // 'idle' | 'playing' | 'over'
     this.resetWorld();
@@ -58,9 +60,12 @@ export class Game {
     this.waves.start(this);
     this.emitHud();
     this.loop.start();
+    if (this.level.mode === 'stream') this.music.play();
+    else this.music.stop();
   }
 
   destroy() {
+    this.music.stop();
     this.loop.stop();
     this.input.detach();
     this.bus.clear();
@@ -75,6 +80,7 @@ export class Game {
 
   finish(won) {
     this.state = 'over';
+    this.music.stop();
     this.emitHud();
     this.bus.emit('gameover', { won, score: this.score, wave: this.waves.number, seconds: Math.floor(this.time / 60) });
   }
