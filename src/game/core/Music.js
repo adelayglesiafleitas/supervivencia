@@ -27,7 +27,24 @@ export class Music {
     };
   }
 
+  // Si hay un archivo en public/audio/jungle.mp3 suena ese; si no, el tema sintetizado.
+  playFile() {
+    this.el ??= new Audio(`${import.meta.env.BASE_URL}audio/jungle.mp3`);
+    const el = this.el;
+    el.loop = true;
+    el.volume = 0.5;
+    el.muted = this.muted;
+    el.currentTime = 0;
+    el.play().catch(() => this.playSynth());
+    this.fileOn = true;
+    window.addEventListener('keydown', this.onKey);
+  }
+
   play() {
+    this.playFile();
+  }
+
+  playSynth() {
     if (this.timer) return;
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
@@ -49,6 +66,8 @@ export class Music {
   }
 
   stop() {
+    if (this.el) this.el.pause();
+    this.fileOn = false;
     clearInterval(this.timer);
     this.timer = null;
     window.removeEventListener('keydown', this.onKey);
@@ -56,6 +75,7 @@ export class Music {
 
   toggleMute() {
     this.muted = !this.muted;
+    if (this.el) this.el.muted = this.muted;
     if (this.master) this.master.gain.value = this.muted ? 0 : 0.22;
   }
 
