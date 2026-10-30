@@ -33,15 +33,15 @@ export const PLAYER_ANIM = {
 export const RUNNER_ANIM = {
   sheet: 'enemyRed',
   native: -1,
-  run: ['1_0', '1_1', '1_2', '1_3'],
-  air: '1_3',
+  run: ['1_0', '1_1', '1_2', '1_3', '1_4'],
+  air: '1_2',
   fps: 12,
 };
 
 export const SHOOTER_ANIM = {
   sheet: 'enemyGreen',
-  runNative: -1, // los frames de correr miran a la izquierda
-  run: ['1_0', '1_1', '1_2', '1_3'],
+  runNative: -1, // todos los frames (correr, quieto, disparo) miran a la izquierda
+  run: ['1_0', '1_1', '1_2', '1_3', '1_4'],
   stand: '2_3',
   shoot: '2_4',
   fps: 9,

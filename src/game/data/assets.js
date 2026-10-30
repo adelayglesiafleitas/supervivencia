@@ -18,7 +18,7 @@ export const ASSET_MANIFEST = {
   },
   enemyRed: {
     image: 'sprites/enemies/atlas_red.png',
-    frames: 'sprites/enemies/frames.json',
+    frames: 'sprites/enemies/frames_red.json',
     smooth: true,
     scale: 0.5,
   },
@@ -33,7 +33,7 @@ export const ASSET_MANIFEST = {
   },
   enemyGreen: {
     image: 'sprites/enemies/atlas_green.png',
-    frames: 'sprites/enemies/frames.json',
+    frames: 'sprites/enemies/frames_green.json',
     smooth: true,
     scale: 0.5,
   },
