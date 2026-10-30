@@ -56,7 +56,7 @@ export class Leaper extends Enemy {
   choosePlan(game, cur) {
     if (!cur) return null;
     const vJ = -PHYSICS.jumpVelocity;
-    const reach = (vJ * vJ) / (2 * PHYSICS.gravity) - 12;
+    const reach = ((vJ * 1.35) ** 2) / (2 * PHYSICS.gravity) - 12; // los enemigos saltan más que el jugador
     const air = this.speed * 1.7;
     const p = game.player;
     const near = game.level.platforms.filter((q) => Math.abs(q.x + q.w / 2 - this.cx) < 1100);
@@ -121,6 +121,17 @@ export class Leaper extends Enemy {
         const hi = cur.x + cur.w - margin;
         const goal = Math.min(Math.max(p.cx, lo), hi);
         if (Math.abs(goal - this.cx) > 6) this.vx = Math.sign(goal - this.cx) * this.speed;
+      }
+      // no se amontonan: si otro enemigo va más adelante hacia el mismo sitio, hace cola detrás
+      if (this.vx) {
+        for (const o of game.enemies) {
+          if (o === this || !o.onGround || o.standing !== cur) continue;
+          const ahead = Math.sign(o.cx - this.cx) === Math.sign(this.vx);
+          if (ahead && Math.abs(o.cx - this.cx) < 22) {
+            this.vx = 0;
+            break;
+          }
+        }
       }
       // seguridad: ningún paso lo saca de su plataforma si no va a saltar
       if (this.vx && cur && !plan) {
