@@ -17,6 +17,15 @@ export default function App() {
   const [result, setResult] = useState(null);
   const gameRef = useRef(null);
   const modeRef = useRef('survival'); // último modo elegido (para reintentar)
+  const [difficulty, setDifficultyState] = useState(() => {
+    try { return localStorage.getItem('difficulty') || 'normal'; } catch { return 'normal'; }
+  });
+  const diffRef = useRef(difficulty);
+  const chooseDifficulty = useCallback((d) => {
+    diffRef.current = d;
+    setDifficultyState(d);
+    try { localStorage.setItem('difficulty', d); } catch { /* sin almacenamiento */ }
+  }, []);
 
   useEffect(() => {
     new Assets()
@@ -29,7 +38,7 @@ export default function App() {
     if (typeof mode === 'string') modeRef.current = mode;
     setResult(null);
     setScreen('playing');
-    gameRef.current?.start(modeRef.current);
+    gameRef.current?.start(modeRef.current, diffRef.current);
   }, []);
 
   const handleGameOver = useCallback((r) => {
@@ -42,13 +51,16 @@ export default function App() {
       if (screen === 'menu' && e.code === 'Digit1') startGame('survival');
       if (screen === 'menu' && e.code === 'Digit2') startGame('jungle');
       if (screen === 'menu' && e.code === 'Digit3') setScreen('editor');
+      if (screen === 'menu' && e.code === 'KeyQ') chooseDifficulty('easy');
+      if (screen === 'menu' && e.code === 'KeyW') chooseDifficulty('normal');
+      if (screen === 'menu' && e.code === 'KeyE') chooseDifficulty('hard');
       if (screen === 'editor' && e.code === 'Escape') setScreen('menu');
       if (screen === 'over' && (e.code === 'KeyR' || e.code === 'Enter')) startGame();
       if (screen === 'over' && e.code === 'Escape') setScreen('menu');
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [screen, startGame]);
+  }, [screen, startGame, chooseDifficulty]);
 
   return (
     <div className="stage">
@@ -56,7 +68,7 @@ export default function App() {
       {screen === 'playing' && hud && <Hud hud={hud} />}
       {!assets && !error && <div className="overlay center">Cargando...</div>}
       {error && <div className="overlay center error">{error}</div>}
-      {assets && screen === 'menu' && <MainMenu onStart={startGame} onEditor={() => setScreen('editor')} />}
+      {assets && screen === 'menu' && <MainMenu onStart={startGame} onEditor={() => setScreen('editor')} difficulty={difficulty} onDifficulty={chooseDifficulty} />}
       {assets && screen === 'editor' && <AnimEditor assets={assets} onClose={() => setScreen('menu')} />}
       {screen === 'over' && result && <GameOver result={result} onRestart={() => startGame()} onMenu={() => setScreen('menu')} />}
     </div>

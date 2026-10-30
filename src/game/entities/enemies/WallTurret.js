@@ -1,4 +1,5 @@
 import { Enemy } from './Enemy.js';
+import { DIFF } from '../../data/difficulty.js';
 import { Projectile } from '../Projectile.js';
 
 const CFG = {
@@ -62,7 +63,7 @@ export class WallTurret extends Enemy {
         this.fire(game, p);
         if (++this.shots >= this.c.burst) {
           this.shots = 0;
-          this.cd = this.c.cd + Math.random() * 40;
+          this.cd = (this.c.cd + Math.random() * 40) * DIFF.cd;
         } else this.cd = 9;
       }
     }

@@ -12,6 +12,8 @@ import { Particles } from './systems/Particles.js';
 import { StreamSystem } from './systems/StreamSystem.js';
 import { WaveSystem } from './systems/WaveSystem.js';
 import { drawLevel } from './render/drawLevel.js';
+import { drawRain } from './render/sky.js';
+import { DIFF, setDifficulty } from './data/difficulty.js';
 
 const inBounds = (b, cam, w, h) => b.life > 0 && b.x > cam - 20 && b.x < cam + w + 20 && b.y > -20 && b.y < h;
 
@@ -47,13 +49,14 @@ export class Game {
     this.camera.x = 0;
     this.objects.reset(this);
     this.player.reset(this.level);
-    this.lives = PLAYER.lives;
+    this.lives = DIFF.lives;
     this.score = 0;
     this.time = 0; // frames
   }
 
   // modeId: clave de LEVELS ('survival', 'jungle'). Sin argumento repite el modo actual.
-  start(modeId) {
+  start(modeId, difficulty) {
+    if (difficulty) setDifficulty(difficulty);
     if (modeId && LEVELS[modeId]) {
       this.level = LEVELS[modeId];
       this.waves = this.level.mode === 'stream' ? new StreamSystem() : new WaveSystem();
@@ -122,7 +125,7 @@ export class Game {
     this.player.update(this);
     if (this.state !== 'playing') return;
     this.updateCamera();
-    if (this.level.goalX && !this.player.dead && this.player.cx > this.level.goalX) return this.finish(true);
+    if (this.level.goalX && !this.objects.gate?.boss && !this.player.dead && this.player.cx > this.level.goalX) return this.finish(true);
 
     this.objects.update(this);
     this.waves.update(this);
@@ -157,6 +160,7 @@ export class Game {
     for (const b of this.projectiles) b.draw(r.ctx);
     for (const b of this.enemyProjectiles) b.draw(r.ctx);
     this.particles.draw(r.ctx);
+    if (this.level.background?.sky) drawRain(r.ctx, this.camera, this.world);
     r.ctx.restore();
   }
 

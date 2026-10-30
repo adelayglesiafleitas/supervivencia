@@ -18,10 +18,11 @@ export const jungle1 = {
   spawn: { side: 'right' },
   background: {
     image: 'jungle',
+    sky: true,
     // capas detrás del mapa: factor = cuánto se mueven respecto a la cámara (0 = fijo)
     layers: [
-      { image: 'mountains', factor: 0.1, scale: 0.497, bottom: 540, mirror: true },
-      { image: 'forest', factor: 0.35, scale: 0.62, bottom: 389, mirror: false },
+      { image: 'mountains', factor: 0.1, scale: 0.8, bottom: 540, mirror: true },
+      { image: 'forest', factor: 0.35, scale: 0.62, bottom: 300, mirror: false },
     ],
   },
   style: { ground: '#2b2b35', platform: '#4a4a58', edge: '#7a7a8c' },
@@ -34,7 +35,7 @@ export const jungle1 = {
     { kind: 'capsule', at: 500, y: 150 },
     { kind: 'capsule', at: 3000, y: 140 },
     { kind: 'capsule', at: 5400, y: 150 },
-    { kind: 'gate', x: 7140, y: 474, scale: 0.5 },
+    { kind: 'gate', x: 7140, y: 474, scale: 0.5, boss: true },
   ],
   platforms: [
     { x: 76, y: 256, w: 1649, h: 14 },

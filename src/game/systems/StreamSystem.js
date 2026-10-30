@@ -1,4 +1,5 @@
 import { createEnemy } from '../entities/enemies/index.js';
+import { DIFF } from '../data/difficulty.js';
 
 // Para niveles con scroll: los enemigos aparecen sin parar por el borde derecho de la pantalla,
 // más y más variados según avanzas por el nivel. (Más adelante: enemigos en puntos fijos del mapa.)
@@ -36,12 +37,12 @@ export class StreamSystem {
     const { level, player } = game;
     this.progress = Math.min(1, player.cx / (level.goalX ?? level.width));
     if (--this.timer > 0) return;
-    const maxOnScreen = 3 + Math.floor(this.progress * 4);
+    const maxOnScreen = Math.max(2, Math.round((3 + Math.floor(this.progress * 4)) / DIFF.spawn));
     if (game.enemies.length >= maxOnScreen) {
       this.timer = 30;
       return;
     }
     game.enemies.push(createEnemy(this.pickType(), game));
-    this.timer = Math.max(50, 120 - this.progress * 60) + Math.random() * 60;
+    this.timer = (Math.max(50, 120 - this.progress * 60) + Math.random() * 60) * DIFF.spawn;
   }
 }

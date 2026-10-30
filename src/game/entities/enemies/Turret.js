@@ -1,3 +1,4 @@
+import { DIFF } from '../../data/difficulty.js';
 import { Enemy } from './Enemy.js';
 import { Projectile } from '../Projectile.js';
 import { TURRET_ANIM as A } from '../../data/animations.js';
@@ -9,7 +10,7 @@ export class Turret extends Enemy {
     this.x = 80 + Math.random() * 800;
     this.y = game.level.groundY - this.h;
     this.onGround = true;
-    this.cd = 90 + Math.random() * 60;
+    this.cd = (90 + Math.random() * 60) * DIFF.cd;
     this.openT = 0;
     game.particles.burst(this.x + this.w / 2, game.level.groundY - 10, 10, '#c0392b');
   }
@@ -30,7 +31,7 @@ export class Turret extends Enemy {
       game.enemyProjectiles.push(
         new Projectile({ x: sx, y: sy, vx: (tx - sx) / T, vy: (ty - sy - 0.5 * g * T * T) / T, g, life: 200, team: 'enemy' }),
       );
-      this.cd = 140 + Math.random() * 60;
+      this.cd = (140 + Math.random() * 60) * DIFF.cd;
       this.openT = 40;
     }
   }

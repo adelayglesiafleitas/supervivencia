@@ -166,3 +166,7 @@ body,
 .ed-check { flex-direction: row !important; align-items: center; }
 .ed-info { margin: 0; opacity: 0.85; line-height: 1.5; }
 .ed-info.small { font-size: 0.9cqw; opacity: 0.6; }
+
+.menu-diff { display: flex; gap: 10px; margin: 4px 0 12px; justify-content: center; }
+.menu-diff button { background: transparent; border: 1px solid #ffffff55; opacity: 0.7; }
+.menu-diff button.on { background: #e67e22; border-color: #e67e22; opacity: 1; }

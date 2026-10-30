@@ -1,7 +1,21 @@
-export default function MainMenu({ onStart, onEditor }) {
+const LEVELS = [
+  ['easy', 'Fácil (Q)'],
+  ['normal', 'Normal (W)'],
+  ['hard', 'Difícil (E)'],
+];
+
+export default function MainMenu({ onStart, onEditor, difficulty, onDifficulty }) {
   return (
     <div className="overlay center dim">
       <h1>SURVIVAL CONTRA</h1>
+      <p className="sub">Dificultad</p>
+      <div className="menu-diff">
+        {LEVELS.map(([id, label]) => (
+          <button key={id} className={difficulty === id ? 'on' : ''} onClick={() => onDifficulty(id)}>
+            {label}
+          </button>
+        ))}
+      </div>
       <p className="sub">Elige un modo</p>
       <div className="menu-modes">
         <button onClick={() => onStart('survival')}>

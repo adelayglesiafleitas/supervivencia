@@ -273,7 +273,8 @@ export class Player extends Entity {
 
   // No puede salir por la izquierda de la cámara ni por el final del nivel.
   limitToLevel(game) {
-    const maxX = (game.level.width ?? game.world.w) - this.w;
+    const gt = game.objects?.gate;
+    const maxX = Math.min((game.level.width ?? game.world.w) - this.w, gt?.boss ? gt.x + 10 - this.w : Infinity); // muro de la fortaleza
     this.x = Math.max(game.camera.x, Math.min(maxX, this.x));
   }
 

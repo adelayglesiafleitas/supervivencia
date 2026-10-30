@@ -1,5 +1,6 @@
 import { Entity } from '../Entity.js';
 import { ENEMY_STATS } from '../../data/enemies.js';
+import { scaleHp } from '../../data/difficulty.js';
 
 // Base de los enemigos. Cada tipo hereda de aquí y define update() y draw().
 // Un enemigo nuevo = una clase nueva + una entrada en ENEMY_STATS + registrarla en index.js.
@@ -9,7 +10,7 @@ export class Enemy extends Entity {
     super({ w: stats.w, h: stats.h });
     this.type = type;
     this.stats = stats;
-    this.hp = stats.hp;
+    this.hp = scaleHp(stats.hp);
     this.score = stats.score;
     this.clamp = false; // entran y salen por los bordes de la pantalla
   }

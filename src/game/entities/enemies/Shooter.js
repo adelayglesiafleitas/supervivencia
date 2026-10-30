@@ -1,4 +1,5 @@
 import { Enemy } from './Enemy.js';
+import { DIFF } from '../../data/difficulty.js';
 import { Projectile } from '../Projectile.js';
 import { moveBody } from '../../core/physics.js';
 import { SHOOTER_ANIM as A, FLASH_ANIM as FX } from '../../data/animations.js';
@@ -13,7 +14,7 @@ export class Shooter extends Enemy {
     this.face = -side;
     this.speed = this.stats.speed;
     this.targetX = game.camera.x + 100 + Math.random() * 760;
-    this.cd = 80 + Math.random() * 60;
+    this.cd = (80 + Math.random() * 60) * DIFF.cd;
     this.shooting = 0;
     this.flash = null;
   }
@@ -51,7 +52,7 @@ export class Shooter extends Enemy {
           team: 'enemy',
         }),
       );
-      this.cd = 100 + Math.random() * 40;
+      this.cd = (100 + Math.random() * 40) * DIFF.cd;
       this.shooting = 10;
     }
   }

@@ -1,3 +1,4 @@
+import { drawSky } from './sky.js';
 // Dibuja el fondo y las plataformas de un nivel.
 const SHOW_PLATFORMS = typeof location !== 'undefined' && location.search.includes('plat');
 
@@ -9,7 +10,10 @@ export function drawLevel(ctx, level, world, assets, camera) {
     const img = assets.sheet(bg.image)?.image;
     ctx.fillStyle = '#000';
     ctx.fillRect(camera.x, 0, world.w, world.h);
-    for (const L of bg.layers ?? []) drawLayer(ctx, L, world, assets, camera);
+    for (const L of bg.layers ?? []) {
+      drawLayer(ctx, L, world, assets, camera);
+      if (bg.sky && L.image === 'mountains') drawSky(ctx, assets, camera, world); // nubes y rayos sobre el cielo, detrás de las palmeras
+    }
     if (img) {
       const k = world.h / img.height; // unidades del mundo por píxel del mapa
       const sx = Math.max(0, Math.floor(camera.x / k));
