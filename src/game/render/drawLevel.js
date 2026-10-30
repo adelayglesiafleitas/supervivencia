@@ -9,6 +9,7 @@ export function drawLevel(ctx, level, world, assets, camera) {
     const img = assets.sheet(bg.image)?.image;
     ctx.fillStyle = '#000';
     ctx.fillRect(camera.x, 0, world.w, world.h);
+    for (const L of bg.layers ?? []) drawLayer(ctx, L, world, assets, camera);
     if (img) {
       const k = world.h / img.height; // unidades del mundo por píxel del mapa
       const sx = Math.max(0, Math.floor(camera.x / k));
@@ -37,5 +38,27 @@ export function drawLevel(ctx, level, world, assets, camera) {
     ctx.fillRect(p.x, p.y, p.w, p.h);
     ctx.fillStyle = style.edge;
     ctx.fillRect(p.x, p.y, p.w, 3);
+  }
+}
+
+// Capa de fondo con parallax: se repite en horizontal (opcionalmente en espejo para ocultar la costura).
+function drawLayer(ctx, L, world, assets, camera) {
+  const img = assets.sheet(L.image)?.image;
+  if (!img) return;
+  const tw = img.width * L.scale;
+  const th = img.height * L.scale;
+  const shift = camera.x * L.factor;
+  const first = Math.floor(shift / tw);
+  const y = L.bottom - th;
+  ctx.imageSmoothingEnabled = true;
+  for (let i = first; i * tw - shift < world.w; i++) {
+    const x = camera.x + i * tw - shift;
+    if (L.mirror && i % 2 !== 0) {
+      ctx.save();
+      ctx.translate(x + tw, y);
+      ctx.scale(-1, 1);
+      ctx.drawImage(img, 0, 0, tw, th);
+      ctx.restore();
+    } else ctx.drawImage(img, x, y, tw, th);
   }
 }

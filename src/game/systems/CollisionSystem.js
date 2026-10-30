@@ -16,7 +16,7 @@ export class CollisionSystem {
         if (e.takeDamage(1)) {
           game.score += e.score;
           particles.burst(e.cx, e.y + e.h / 2, 12, '#ff7a3c');
-          if (Math.random() < PICKUP_DROP_CHANCE) pickups.push(new Pickup(e.x, e.y));
+          if (e.dropAlways || (!e.harmless && Math.random() < PICKUP_DROP_CHANCE)) pickups.push(new Pickup(e.x, e.y));
         }
       }
     }
@@ -30,7 +30,7 @@ export class CollisionSystem {
     }
 
     // contacto enemigo -> jugador
-    if (!player.dead) for (const e of enemies) if (!e.dead && overlaps(e, player)) player.hurt(game);
+    if (!player.dead) for (const e of enemies) if (!e.dead && !e.harmless && overlaps(e, player)) player.hurt(game);
 
     // recogidas
     for (const k of pickups) {

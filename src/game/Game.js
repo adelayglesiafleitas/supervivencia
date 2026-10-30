@@ -7,6 +7,7 @@ import { Renderer } from './core/Renderer.js';
 import { LEVELS } from './data/levels/index.js';
 import { Player } from './entities/Player.js';
 import { CollisionSystem } from './systems/CollisionSystem.js';
+import { LevelObjects } from './systems/LevelObjects.js';
 import { Particles } from './systems/Particles.js';
 import { StreamSystem } from './systems/StreamSystem.js';
 import { WaveSystem } from './systems/WaveSystem.js';
@@ -29,6 +30,7 @@ export class Game {
     this.collisions = new CollisionSystem();
     this.particles = new Particles();
     this.music = new Music();
+    this.objects = new LevelObjects();
     this.loop = new Loop({ stepMs: STEP_MS, update: () => this.update(), render: () => this.render() });
     if (import.meta.env.DEV) window.__game = this; // solo para depurar
     this.state = 'idle'; // 'idle' | 'playing' | 'over'
@@ -43,6 +45,7 @@ export class Game {
     this.pickups = [];
     this.particles.clear();
     this.camera.x = 0;
+    this.objects.reset(this);
     this.player.reset(this.level);
     this.lives = PLAYER.lives;
     this.score = 0;
@@ -105,6 +108,7 @@ export class Game {
     this.updateCamera();
     if (this.level.goalX && !this.player.dead && this.player.cx > this.level.goalX) return this.finish(true);
 
+    this.objects.update(this);
     this.waves.update(this);
     for (const e of this.enemies) e.update(this);
     for (const p of this.pickups) p.update(this);
@@ -130,6 +134,7 @@ export class Game {
     r.ctx.save();
     r.ctx.translate(-this.camera.x, 0); // todo lo del mundo se dibuja desplazado por la cámara
     drawLevel(r.ctx, this.level, this.world, r.assets, this.camera);
+    this.objects.draw(r);
     for (const k of this.pickups) k.draw(r);
     for (const e of this.enemies) e.draw(r);
     this.player.draw(r);

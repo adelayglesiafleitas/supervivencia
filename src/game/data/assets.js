@@ -22,6 +22,12 @@ export const ASSET_MANIFEST = {
     smooth: true,
     scale: 0.5,
   },
+  turret: { image: 'sprites/level/turret.png', frames: 'sprites/level/turret.json', smooth: true, scale: 0.5 },
+  sensor: { image: 'sprites/level/sensor.png', frames: 'sprites/level/sensor.json', smooth: true, scale: 0.5 },
+  bridge: { image: 'sprites/level/bridge.png', frames: 'sprites/level/bridge.json', smooth: true, scale: 0.497 },
+  gate: { image: 'sprites/level/gate.png' },
+  mountains: { image: 'sprites/level/bg_mountains.jpg' },
+  forest: { image: 'sprites/level/bg_forest.png' },
   enemyRed: {
     image: 'sprites/enemies/atlas_red.png',
     frames: 'sprites/enemies/frames_red.json',
