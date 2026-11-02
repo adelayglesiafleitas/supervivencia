@@ -46,7 +46,7 @@ export function drawLevel(ctx, level, world, assets, camera) {
 }
 
 // Capa de fondo con parallax: se repite en horizontal (opcionalmente en espejo para ocultar la costura).
-function drawLayer(ctx, L, world, assets, camera) {
+export function drawLayer(ctx, L, world, assets, camera) {
   const img = assets.sheet(L.image)?.image;
   if (!img) return;
   const tw = img.width * L.scale;

@@ -68,7 +68,7 @@ export default function App() {
       {screen === 'playing' && hud && <Hud hud={hud} />}
       {!assets && !error && <div className="overlay center">Cargando...</div>}
       {error && <div className="overlay center error">{error}</div>}
-      {assets && screen === 'menu' && <MainMenu onStart={startGame} onEditor={() => setScreen('editor')} difficulty={difficulty} onDifficulty={chooseDifficulty} />}
+      {assets && screen === 'menu' && <MainMenu assets={assets} onStart={startGame} onEditor={() => setScreen('editor')} difficulty={difficulty} onDifficulty={chooseDifficulty} />}
       {assets && screen === 'editor' && <AnimEditor assets={assets} onClose={() => setScreen('menu')} />}
       {screen === 'over' && result && <GameOver result={result} onRestart={() => startGame()} onMenu={() => setScreen('menu')} />}
     </div>
