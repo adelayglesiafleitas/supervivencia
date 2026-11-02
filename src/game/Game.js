@@ -67,8 +67,7 @@ export class Game {
     this.waves.start(this);
     this.emitHud();
     this.loop.start();
-    if (this.level.mode === 'stream') this.music.play();
-    else this.music.stop();
+    this.music.play(); // si ya sonaba desde el menú, sigue sin reiniciarse
   }
 
   destroy() {
